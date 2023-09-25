@@ -1,15 +1,13 @@
 package model.entities;
 
-public class Produto extends Colecao{
+public class Produto{
 	private String codigo;
 	private String nomeProduto;
 	private Integer estoque;
 	private Integer enchimentos;
 	private Integer cortes;
 	
-	public Produto(String codigoColecao, String nome, String codigo, String nomeProduto, Integer estoque, Integer enchimentos,
-			Integer cortes) {
-		super(codigoColecao, nome);
+	public Produto(String codigo, String nomeProduto, Integer estoque, Integer enchimentos, Integer cortes) {
 		this.codigo = codigo;
 		this.nomeProduto = nomeProduto;
 		this.estoque = estoque;

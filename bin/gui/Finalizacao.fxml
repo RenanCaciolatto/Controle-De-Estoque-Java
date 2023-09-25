@@ -55,27 +55,23 @@
                <content>
                   <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="571.0" prefWidth="800.0">
                      <children>
-                        <ComboBox layoutX="32.0" layoutY="30.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="29.0" prefWidth="326.0" promptText="Coleções" />
+                        <ComboBox fx:id="comboboxProduto" layoutX="32.0" layoutY="30.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="29.0" prefWidth="326.0" promptText="Coleções" />
                         <Label layoutX="32.0" layoutY="466.0" prefHeight="35.0" prefWidth="138.0" text="Observações">
                            <font>
                               <Font size="24.0" />
                            </font>
                         </Label>
                         <TextArea layoutX="176.0" layoutY="465.0" prefHeight="74.0" prefWidth="278.0" />
-                        <ScrollPane hbarPolicy="NEVER" layoutX="32.0" layoutY="68.0" prefHeight="370.0" prefWidth="737.0">
-                           <content>
-                              <TableView prefHeight="369.0" prefWidth="730.0">
-                                 <columns>
-                                    <TableColumn editable="false" prefWidth="76.0" text="Código" />
-                                    <TableColumn editable="false" prefWidth="402.0" text="Nome do Produto" />
-                                    <TableColumn minWidth="0.0" prefWidth="96.0" text="Em Estoque" />
-                                    <TableColumn prefWidth="94.0" text="Enchimentos" />
-                                    <TableColumn prefWidth="61.0" text="Cortes" />
-                                 </columns>
-                              </TableView>
-                           </content>
-                        </ScrollPane>
-                        <Button fx:id="btAplicar" layoutX="707.0" layoutY="503.0" mnemonicParsing="false" onAction="#onBtAplicarAction" prefHeight="36.0" prefWidth="62.0" text="SALVAR" />
+                        <TableView fx:id="tabelaProduto" layoutX="32.0" layoutY="68.0" prefHeight="369.0" prefWidth="730.0">
+                           <columns>
+                              <TableColumn fx:id="colCodigo" editable="false" prefWidth="76.0" text="Código" />
+                              <TableColumn fx:id="colNomeProduto" editable="false" prefWidth="395.0" text="Nome do Produto" />
+                              <TableColumn fx:id="colEmEstoque" minWidth="0.0" prefWidth="97.0" text="Em Estoque" />
+                              <TableColumn fx:id="colEnchimentos" prefWidth="87.0" text="Enchimentos" />
+                              <TableColumn fx:id="colCortes" prefWidth="59.0" text="Cortes" />
+                           </columns>
+                        </TableView>
+                        <Button layoutX="707.0" layoutY="503.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="62.0" text="SALVAR" />
                      </children>
                   </AnchorPane>
                </content>
