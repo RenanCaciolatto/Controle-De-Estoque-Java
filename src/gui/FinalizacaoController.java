@@ -8,6 +8,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import connection.DBConnection;
+import gui.util.Alerts;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -42,6 +43,7 @@ public class FinalizacaoController implements Initializable{
 	
 	ObservableList<Produto>  ListaProdutos = FXCollections.observableArrayList();
 	ObservableList<String>  ListaColecao = FXCollections.observableArrayList();
+	ObservableList<Produto>  ListaAlteracao = FXCollections.observableArrayList();
 	
 	@Override
 	public void initialize(java.net.URL arg0, ResourceBundle arg1) {
@@ -110,6 +112,10 @@ public class FinalizacaoController implements Initializable{
 	@FXML
 	private void setTableDataFromComboBox() {
 		ListaProdutos.clear();
+		
+		if(!ListaAlteracao.isEmpty()) {
+			//COLOCAR PARA SALVAR ANTES DE MUDAR DE COLEÇÃO
+		}
 		try {
 			String nomeColecao = comboboxProduto.getSelectionModel().getSelectedItem();
 			
@@ -146,6 +152,41 @@ public class FinalizacaoController implements Initializable{
 		}
 		catch(Exception e) {
 			System.out.println(e);
+		}
+	}
+	
+	@FXML
+	private void toUpdate() {
+		if(tabelaProduto.getSelectionModel().isEmpty()) {
+			Produto produtoSelecionado = tabelaProduto.getSelectionModel().getSelectedItem();
+			 
+			String codigoProduto = colCodigo.getCellData(produtoSelecionado);
+		    String nomeProduto = colNomeProduto.getCellData(produtoSelecionado);
+		    int estoque = colEmEstoque.getCellData(produtoSelecionado);
+		    int enchimentos = colEnchimentos.getCellData(produtoSelecionado);
+		    int cortes = colCortes.getCellData(produtoSelecionado);
+		    
+		    ListaAlteracao.add(new Produto(codigoProduto, nomeProduto, estoque, enchimentos, cortes));
+		}		
+	}
+	
+	@FXML
+	private void updateStock() {
+		if(!ListaAlteracao.isEmpty()) {
+			int response = Alerts.showConfirmationAlert("CONFIRMAR?", "DESEJA SALVAR TODAS AS ALTERAÇÕES FEITAS?");
+			switch(response) {
+				case 1:
+					ListaAlteracao.clear();
+				case 2:
+					for(int i = 0; i < ListaAlteracao.size(); i++) {
+						Produto saveProduct = ListaAlteracao.get(i);
+						String idProduto = saveProduct.getCodigo();
+						int estoque = saveProduct.getEstoque();
+						int enchimentos = saveProduct.getEnchimentos();
+						int cortes = saveProduct.getCortes();
+						query = "UPDATE produtos SET estoque = "+estoque+" enchimentos = "+enchimentos+" cortes = "+cortes+"WHERE codigoProduto = '"+idProduto+"'";
+					} 
+			}
 		}
 	}
 }
