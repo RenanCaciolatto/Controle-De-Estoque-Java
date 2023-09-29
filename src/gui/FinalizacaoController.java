@@ -7,16 +7,21 @@ import java.sql.SQLException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import connection.DBConnection;
 import gui.util.Alerts;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.converter.IntegerStringConverter;
 import model.entities.Produto;
 
 public class FinalizacaoController implements Initializable{
@@ -50,8 +55,64 @@ public class FinalizacaoController implements Initializable{
 		// TODO Auto-generated method stub
 		loadDate();
 		setComboBoxDate();
+		
 	}
 	
+	@FXML
+	private void setOnEditCommitHandler() {
+
+	    setColumnEditHandler(colEmEstoque);
+	    setColumnEditHandler(colEnchimentos);
+	    setColumnEditHandler(colCortes);
+	}
+	
+	private <T> void setColumnEditHandler(
+	        TableColumn<Produto, T> coluna) {
+
+	    coluna.setOnEditCommit(new EventHandler<CellEditEvent<Produto, T>>() {
+	        @Override
+	        public void handle(CellEditEvent<Produto, T> event) {
+	            // Obtendo o item da linha afetada
+	            Produto item = event.getRowValue();
+
+	            // Obtendo os valores de todas as colunas na linha afetada
+	            String codigoProduto = item.getCodigo();
+	            String nomeProduto = item.getNomeProduto();
+	            int valorEmEstoque = colEmEstoque.getCellData(item);
+	            int valorEnchimentos = colEnchimentos.getCellData(item);
+	            int valorCortes = colCortes.getCellData(item);
+
+	            // Descobrindo qual coluna foi alterada
+	            if (coluna == colEmEstoque) {
+	                T novoValor = event.getNewValue();
+	                if (novoValor instanceof Integer) {
+	                    valorEmEstoque = (Integer) novoValor;
+	                    System.out.println("A coluna Em Estoque foi alterada para: " + valorEmEstoque);
+	                    ListaAlteracao.add(new Produto(codigoProduto, nomeProduto, valorEmEstoque, valorEnchimentos, valorCortes));
+	                }
+	            
+	            } else if (coluna == colEnchimentos) {
+	            	T novoValor = event.getNewValue();
+	                if (novoValor instanceof Integer) {
+	                    valorEnchimentos = (Integer) novoValor;
+	                    System.out.println("A coluna Enchimentos foi alterada para: " + valorEnchimentos);
+	                    ListaAlteracao.add(new Produto(codigoProduto, nomeProduto, valorEmEstoque, valorEnchimentos, valorCortes));
+	                }
+	            
+	            } else if (coluna == colCortes) {
+	            	T novoValor = event.getNewValue();
+	                if (novoValor instanceof Integer) {
+	                    valorCortes = (Integer) novoValor;
+	                    System.out.println("A coluna Cortes foi alterada para: " + valorCortes);
+	                    ListaAlteracao.add(new Produto(codigoProduto, nomeProduto, valorEmEstoque, valorEnchimentos, valorCortes));
+	                }
+	            }
+	            System.out.println(ListaAlteracao.toString());
+	            
+	        }
+	    });
+	}
+
 	private void refreshTable() {
 		try {
 			ListaProdutos.clear();
@@ -85,6 +146,10 @@ public class FinalizacaoController implements Initializable{
 		colEmEstoque.setCellValueFactory(new PropertyValueFactory<>("estoque"));
 		colEnchimentos.setCellValueFactory(new PropertyValueFactory<>("enchimentos"));
 		colCortes.setCellValueFactory(new PropertyValueFactory<>("cortes"));
+		
+		colEmEstoque.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+		colEnchimentos.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+		colCortes.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
 
 	}
 	
@@ -144,6 +209,8 @@ public class FinalizacaoController implements Initializable{
 			colEmEstoque.setCellValueFactory(new PropertyValueFactory<>("estoque"));
 			colEnchimentos.setCellValueFactory(new PropertyValueFactory<>("enchimentos"));
 			colCortes.setCellValueFactory(new PropertyValueFactory<>("cortes"));
+
+			
 			
 			tabelaProduto.setItems(ListaProdutos);
 		}
@@ -153,21 +220,6 @@ public class FinalizacaoController implements Initializable{
 		catch(Exception e) {
 			System.out.println(e);
 		}
-	}
-	
-	@FXML
-	private void toUpdate() {
-		if(tabelaProduto.getSelectionModel().isEmpty()) {
-			Produto produtoSelecionado = tabelaProduto.getSelectionModel().getSelectedItem();
-			 
-			String codigoProduto = colCodigo.getCellData(produtoSelecionado);
-		    String nomeProduto = colNomeProduto.getCellData(produtoSelecionado);
-		    int estoque = colEmEstoque.getCellData(produtoSelecionado);
-		    int enchimentos = colEnchimentos.getCellData(produtoSelecionado);
-		    int cortes = colCortes.getCellData(produtoSelecionado);
-		    
-		    ListaAlteracao.add(new Produto(codigoProduto, nomeProduto, estoque, enchimentos, cortes));
-		}		
 	}
 	
 	@FXML

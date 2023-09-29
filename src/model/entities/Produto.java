@@ -47,5 +47,15 @@ public class Produto{
 		return nomeProduto;
 	}
 	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("codigo: "+codigo+"\n");
+		sb.append("nome: "+nomeProduto+"\n");
+		sb.append("estoque: "+estoque+"\n");
+		sb.append("enchimentos: "+enchimentos+"\n");
+		sb.append("cortes: " + cortes + "\n");
+		return sb.toString();
+	}
 	
 }

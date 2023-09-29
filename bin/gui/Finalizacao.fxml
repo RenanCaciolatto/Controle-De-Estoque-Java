@@ -51,7 +51,7 @@
                      </children></AnchorPane>
                </content>
             </Tab>
-          <Tab text="Estoque">
+          <Tab onCloseRequest="#updateStock" onSelectionChanged="#updateStock" text="Estoque">
                <content>
                   <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="571.0" prefWidth="800.0">
                      <children>
@@ -62,13 +62,13 @@
                            </font>
                         </Label>
                         <TextArea layoutX="32.0" layoutY="484.0" prefHeight="74.0" prefWidth="317.0" />
-                        <TableView fx:id="tabelaProduto" layoutX="32.0" layoutY="68.0" onInputMethodTextChanged="#toUpdate" prefHeight="369.0" prefWidth="730.0">
+                        <TableView fx:id="tabelaProduto" editable="true" layoutX="32.0" layoutY="68.0" prefHeight="369.0" prefWidth="730.0">
                            <columns>
                               <TableColumn fx:id="colCodigo" editable="false" prefWidth="76.0" text="Código" />
                               <TableColumn fx:id="colNomeProduto" editable="false" prefWidth="395.0" text="Nome do Produto" />
-                              <TableColumn fx:id="colEmEstoque" minWidth="0.0" prefWidth="97.0" text="Em Estoque" />
-                              <TableColumn fx:id="colEnchimentos" prefWidth="87.0" text="Enchimentos" />
-                              <TableColumn fx:id="colCortes" prefWidth="59.0" text="Cortes" />
+                              <TableColumn fx:id="colEmEstoque" minWidth="0.0" onEditCommit="#setOnEditCommitHandler" prefWidth="97.0" text="Em Estoque" />
+                              <TableColumn fx:id="colEnchimentos" onEditCommit="#setOnEditCommitHandler" prefWidth="87.0" text="Enchimentos" />
+                              <TableColumn fx:id="colCortes" onEditCommit="#setOnEditCommitHandler" prefWidth="59.0" text="Cortes" />
                            </columns>
                         </TableView>
                         <Button layoutX="707.0" layoutY="503.0" mnemonicParsing="false" onAction="#updateStock" prefHeight="36.0" prefWidth="62.0" text="SALVAR" />
