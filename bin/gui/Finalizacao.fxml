@@ -61,8 +61,8 @@
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <TextArea layoutX="32.0" layoutY="484.0" prefHeight="74.0" prefWidth="317.0" />
-                        <TableView fx:id="tabelaProduto" editable="true" layoutX="32.0" layoutY="68.0" prefHeight="369.0" prefWidth="730.0">
+                        <TextArea fx:id="observacoes" layoutX="32.0" layoutY="484.0" onMouseExited="#setOndEditObservacoes" prefHeight="74.0" prefWidth="317.0" />
+                        <TableView fx:id="tabelaProduto" editable="true" layoutX="32.0" layoutY="68.0" onMouseClicked="#setObservacoesData" prefHeight="369.0" prefWidth="730.0">
                            <columns>
                               <TableColumn fx:id="colCodigo" editable="false" prefWidth="76.0" text="Código" />
                               <TableColumn fx:id="colNomeProduto" editable="false" prefWidth="395.0" text="Nome do Produto" />

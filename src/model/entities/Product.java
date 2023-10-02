@@ -1,18 +1,28 @@
 package model.entities;
 
-public class Produto{
+public class Product{
 	private String codigo;
 	private String nomeProduto;
 	private Integer estoque;
 	private Integer enchimentos;
 	private Integer cortes;
+	private String observacoes;
 	
-	public Produto(String codigo, String nomeProduto, Integer estoque, Integer enchimentos, Integer cortes) {
+	public Product(String codigo, String nomeProduto, Integer estoque, Integer enchimentos, Integer cortes, String observacoes) {
 		this.codigo = codigo;
 		this.nomeProduto = nomeProduto;
 		this.estoque = estoque;
 		this.enchimentos = enchimentos;
 		this.cortes = cortes;
+		this.observacoes = observacoes;
+	}
+	
+	public String getObservacoes() {
+		return observacoes;
+	}
+
+	public void setObservacoes(String observacoes) {
+		this.observacoes = observacoes;
 	}
 
 	public Integer getEstoque() {
@@ -55,6 +65,7 @@ public class Produto{
 		sb.append("estoque: "+estoque+"\n");
 		sb.append("enchimentos: "+enchimentos+"\n");
 		sb.append("cortes: " + cortes + "\n");
+		sb.append("observacoes: " + observacoes + "\n");
 		return sb.toString();
 	}
 	
