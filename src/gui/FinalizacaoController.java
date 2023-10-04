@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import connection.DBConnection;
 import gui.util.Alerts;
+import gui.util.Constraints;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -20,10 +21,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.IntegerStringConverter;
 import model.entities.Product;
+import model.entities.ProductDiario;
 import model.repositores.ProductRepository;
 
 public class FinalizacaoController implements Initializable{
@@ -51,6 +54,7 @@ public class FinalizacaoController implements Initializable{
 	Product produto = null;
 	ProductRepository PR = new ProductRepository();
 	
+	ObservableList<ProductDiario> ListaDiario = FXCollections.observableArrayList();
 	ObservableList<Product>  ListaProdutos = FXCollections.observableArrayList();
 	ObservableList<String>  ListaColecao = FXCollections.observableArrayList();
 	ObservableList<Product>  ListaAlteracaoEstoque = FXCollections.observableArrayList();
@@ -62,9 +66,11 @@ public class FinalizacaoController implements Initializable{
 	@Override
 	public void initialize(java.net.URL arg0, ResourceBundle arg1) {
 		// TODO Auto-generated method stub
+		
 		loadDate();
 		setComboBoxDate();
 		setOnEditCommitHandler();
+		Constraints.setTextFieldInteger(quantidadeProdutoDiario);
 	}
 	
 	// CARREGA A LISTA COM TODOS OS PRODUTOS QUE VIER DO BANCO
@@ -103,6 +109,7 @@ public class FinalizacaoController implements Initializable{
 		colEmEstoque.setCellValueFactory(new PropertyValueFactory<>("estoque"));
 		colEnchimentos.setCellValueFactory(new PropertyValueFactory<>("enchimentos"));
 		colCortes.setCellValueFactory(new PropertyValueFactory<>("cortes"));
+		
 		
 		colEmEstoque.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
 		colEnchimentos.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
@@ -225,66 +232,59 @@ public class FinalizacaoController implements Initializable{
 	
 	// TESTA TODAS AS COLUNAS EDITAVEIS PARA VERIFICAR SE OCORREU O EVENTO
 	@FXML
-	private void setOnEditCommitHandler() {
-
-	    setColumnEditHandler(colEmEstoque);
-	    setColumnEditHandler(colEnchimentos);
-	    setColumnEditHandler(colCortes);
+	private void setOnEditCommitHandler() {			
+			setColumnEditHandler(colEnchimentos);
+		    setColumnEditHandler(colEmEstoque);
+		    setColumnEditHandler(colCortes);
 	}
 	
 	// VERIFICA O EVENTO OCORRIDO NA COLUNA EDITADA E SALVA EM UMA LISTA DE ESPERA PARA SALVAR
-	private <T> void setColumnEditHandler(
-	        TableColumn<Product, T> coluna) {
-
-	    coluna.setOnEditCommit(new EventHandler<CellEditEvent<Product, T>>() {
-	        @Override
-	        public void handle(CellEditEvent<Product, T> event) {
-	            Product item = event.getRowValue();
-
+	// TRATAR EXCEÇÃO
+	private <T> void setColumnEditHandler(TableColumn<Product, T> coluna) {
+		coluna.setOnEditCommit(new EventHandler<CellEditEvent<Product, T>>() {	 
+			@Override
+	        public void handle(CellEditEvent<Product, T> event){
+	        	
+	    		Product item = event.getRowValue();
 	            // Obtendo os valores de todas as colunas na linha afetada
 	            String codigoProduto = item.getCodigo();
 	            String nomeProduto = item.getNomeProduto();
 	            int valorEmEstoque = colEmEstoque.getCellData(item);
 	            int valorEnchimentos = colEnchimentos.getCellData(item);
 	            int valorCortes = colCortes.getCellData(item);
-	            String textoObservacoes = observacoes.getText();
-	            // Descobrindo qual coluna foi alterada
-	            if (coluna == colEmEstoque) {	            	
-	                T novoValor = event.getNewValue();
-	                
-	                if (novoValor instanceof Integer) {
-	                    valorEmEstoque = (Integer) novoValor;
+	            String textoObservacoes = observacoes.getText();		            
+	            
+	            T novoValor = event.getNewValue();	            
+	            if (novoValor instanceof Integer) {
+	            	// Descobrindo qual coluna foi alterada
+		            if (coluna == colEmEstoque) {       
+	            	
+	                	valorEmEstoque = (Integer) novoValor;			                	
 	                    System.out.println("A coluna Em Estoque foi alterada para: " + valorEmEstoque);
 	                    ListaAlteracaoEstoque.add(new Product(codigoProduto, nomeProduto, valorEmEstoque, valorEnchimentos, valorCortes, textoObservacoes));
-	                    
-	                    System.out.println(ListaAlteracaoEstoque.toString());	                    
-	                }
-	            
-	            } else if (coluna == colEnchimentos) {
-	            	T novoValor = event.getNewValue();
+		                    
+		                    System.out.println(ListaAlteracaoEstoque.toString());	  
+		            } else if (coluna == colEnchimentos) {
 	            	
-	                if (novoValor instanceof Integer) {
 	                    valorEnchimentos = (Integer) novoValor;
 	                    System.out.println("A coluna Enchimentos foi alterada para: " + valorEnchimentos);
 	                    ListaAlteracaoEnchimentos.add(new Product(codigoProduto, nomeProduto, valorEmEstoque, valorEnchimentos, valorCortes, textoObservacoes));
-	                
-	                    System.out.println(ListaAlteracaoEnchimentos.toString());	                    
-	                }
-	            
-	            } else if (coluna == colCortes) {
-	            	T novoValor = event.getNewValue();
+		                
+		                    System.out.println(ListaAlteracaoEnchimentos.toString()); 
+		            } else if (coluna == colCortes) {
 	            	
-	                if (novoValor instanceof Integer) {
 	                    valorCortes = (Integer) novoValor;
 	                    System.out.println("A coluna Cortes foi alterada para: " + valorCortes);
 	                    ListaAlteracaoCortes.add(new Product(codigoProduto, nomeProduto, valorEmEstoque, valorEnchimentos, valorCortes, textoObservacoes));
 	                
-	                    System.out.println(ListaAlteracaoCortes.toString());	                    
-	                }
-	            }	            
-	        }
-	    });
-	}
+	                    System.out.println(ListaAlteracaoCortes.toString());	
+		            	}
+	            } else {
+	            	throw new NumberFormatException("ERRO AO TENTAR EDITAR, TENTE UTILIZAR APENAS NÚMEROS INTEIROS!");
+	            }        	
+        	}
+        });
+     }
 	
 	// ENVIA UM ALERTA PERGUNTANDO SE REALMENTE DESEJA EFETUAR AS ALTERAÇÕES
 	@FXML
@@ -338,6 +338,33 @@ public class FinalizacaoController implements Initializable{
 						}
 					}
 			}
+		}
+	}
+	
+	/*
+	 * 
+	 * PÁGINA DE DIÁRIO
+	 * 
+	 */
+
+	@FXML
+	private TextField produtoDiario;
+	@FXML
+	private TextField quantidadeProdutoDiario;
+	
+	@FXML
+	private void insertOnActionDiario() {
+		if(!produtoDiario.getText().isEmpty() && !quantidadeProdutoDiario.getText().isEmpty()) {
+			for(int i = 0; i < ListaDiario.size(); i++) {
+				
+				if(!ListaDiario.contains(new ProductDiario(produtoDiario.getText()))) {
+					ListaDiario.add(new ProductDiario(produtoDiario.getText(), quantidadeProdutoDiario.getText()));
+				}
+				else {
+					
+				}
+			}
+			ListaDiario.add(new ProductDiario(produtoDiario.getText(), quantidadeProdutoDiario.getText()));
 		}
 	}
 }

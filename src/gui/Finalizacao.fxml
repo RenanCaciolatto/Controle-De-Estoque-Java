@@ -4,7 +4,6 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
@@ -27,7 +26,7 @@
                               <Font size="18.0" />
                            </font>
                         </Label>
-                        <TextField layoutX="222.0" layoutY="27.0" prefHeight="30.0" prefWidth="339.0">
+                        <TextField fx:id="produtoDiario" layoutX="222.0" layoutY="27.0" prefHeight="30.0" prefWidth="339.0">
                            <font>
                               <Font size="14.0" />
                            </font>
@@ -37,7 +36,6 @@
                               <Font size="18.0" />
                            </font>
                         </Label>
-                        <Spinner layoutX="222.0" layoutY="64.0" prefHeight="25.0" prefWidth="72.0" />
                         <ScrollPane hbarPolicy="NEVER" layoutX="39.0" layoutY="106.0" prefHeight="433.0" prefWidth="719.0">
                            <content>
                               <TableView prefHeight="439.0" prefWidth="718.0">
@@ -48,6 +46,11 @@
                               </TableView>
                            </content>
                         </ScrollPane>
+                        <TextField fx:id="quantidadeProdutoDiario" layoutX="222.0" layoutY="62.0" prefHeight="30.0" prefWidth="76.0">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </TextField>
                      </children></AnchorPane>
                </content>
             </Tab>

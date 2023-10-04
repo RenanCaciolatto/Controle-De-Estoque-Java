@@ -8,6 +8,9 @@ public class Product{
 	private Integer cortes;
 	private String observacoes;
 	
+	public Product() {
+	}
+	
 	public Product(String codigo, String nomeProduto, Integer estoque, Integer enchimentos, Integer cortes, String observacoes) {
 		this.codigo = codigo;
 		this.nomeProduto = nomeProduto;
@@ -56,6 +59,7 @@ public class Product{
 	public String getNomeProduto() {
 		return nomeProduto;
 	}
+	
 	
 	@Override
 	public String toString() {
