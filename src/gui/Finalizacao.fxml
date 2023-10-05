@@ -38,10 +38,10 @@
                         </Label>
                         <ScrollPane hbarPolicy="NEVER" layoutX="39.0" layoutY="106.0" prefHeight="433.0" prefWidth="719.0">
                            <content>
-                              <TableView prefHeight="439.0" prefWidth="718.0">
+                              <TableView fx:id="tabelaDiario" prefHeight="439.0" prefWidth="718.0">
                                 <columns>
-                                  <TableColumn prefWidth="549.0" text="NOME DO PRODUTO" />
-                                  <TableColumn prefWidth="155.0" text="QUANTIDADE" />
+                                  <TableColumn fx:id="colNomeProdutoDiario" prefWidth="549.0" text="NOME DO PRODUTO" />
+                                  <TableColumn fx:id="colQuantidadeDiario" prefWidth="155.0" text="QUANTIDADE" />
                                 </columns>
                               </TableView>
                            </content>

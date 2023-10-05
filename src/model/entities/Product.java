@@ -8,6 +8,7 @@ public class Product{
 	private Integer cortes;
 	private String observacoes;
 	
+	
 	public Product() {
 	}
 	
@@ -59,7 +60,6 @@ public class Product{
 	public String getNomeProduto() {
 		return nomeProduto;
 	}
-	
 	
 	@Override
 	public String toString() {

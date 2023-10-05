@@ -8,7 +8,6 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import connection.DBConnection;
 import gui.util.Alerts;
 import gui.util.Constraints;
 import javafx.collections.FXCollections;
@@ -47,12 +46,12 @@ public class FinalizacaoController implements Initializable{
 	@FXML 
 	private TextArea observacoes;
 	
+	ProductRepository queryDB = new ProductRepository();	
 	String query = null;
 	Connection connection = null;
 	PreparedStatement preparedStatement = null;
 	ResultSet resultSet = null;
 	Product produto = null;
-	ProductRepository PR = new ProductRepository();
 	
 	ObservableList<ProductDiario> ListaDiario = FXCollections.observableArrayList();
 	ObservableList<Product>  ListaProdutos = FXCollections.observableArrayList();
@@ -65,8 +64,7 @@ public class FinalizacaoController implements Initializable{
 	// COMANDOS QUE SERÃO EXECUTADOS ASSIM QUE EXECUTAR O PROGRAMA
 	@Override
 	public void initialize(java.net.URL arg0, ResourceBundle arg1) {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub		
 		loadDate();
 		setComboBoxDate();
 		setOnEditCommitHandler();
@@ -76,11 +74,9 @@ public class FinalizacaoController implements Initializable{
 	// CARREGA A LISTA COM TODOS OS PRODUTOS QUE VIER DO BANCO
 	private void refreshTable() {
 		try {
-			ListaProdutos.clear();
-			
+			ListaProdutos.clear();	
 			query = "SELECT * FROM produtos";
-			preparedStatement = connection.prepareStatement(query);
-			resultSet = preparedStatement.executeQuery();
+			resultSet = queryDB.selectQuery(query);
 			
 			while (resultSet.next()) {
 				ListaProdutos.add(new Product(
@@ -91,8 +87,7 @@ public class FinalizacaoController implements Initializable{
 					resultSet.getInt("cortes"),
 					resultSet.getString("observacoes")));
 					tabelaProduto.setItems(ListaProdutos);
-			}
-			
+			}			
 		}
 		catch(SQLException e) {
 			Logger.getLogger(FinalizacaoController.class.getName()).log(Level.SEVERE, null, e);
@@ -101,7 +96,6 @@ public class FinalizacaoController implements Initializable{
 	
 	// CARREGA A TABELA COM AS INFORMAÇÕES DO BANCO E DEFINE AS ULTIMAS 3 COLUNAS COMO EDITAVEIS
 	private void loadDate() {
-		connection = DBConnection.Conexao();
 		refreshTable();
 		
 		colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
@@ -109,25 +103,22 @@ public class FinalizacaoController implements Initializable{
 		colEmEstoque.setCellValueFactory(new PropertyValueFactory<>("estoque"));
 		colEnchimentos.setCellValueFactory(new PropertyValueFactory<>("enchimentos"));
 		colCortes.setCellValueFactory(new PropertyValueFactory<>("cortes"));
-		
-		
+				
 		colEmEstoque.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
 		colEnchimentos.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
 		colCortes.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-
 	}
 	
 	// CARREGA A COMBOBOX COM AS COLEÇÕES QUE VEM DO BANCO
 	private void setComboBoxDate() {
 		try { 
 			query = "SELECT * FROM colecao";
-			preparedStatement = connection.prepareStatement(query);
-			resultSet = preparedStatement.executeQuery();
+			resultSet = queryDB.selectQuery(query);
 			
 			while(resultSet.next()) {
-				ListaColecao.add(resultSet.getString("nomeColecao"));
-				
+				ListaColecao.add(resultSet.getString("nomeColecao"));				
 			}
+			
 			comboboxProduto.setItems(ListaColecao);
 		}
 		catch(SQLException e) {
@@ -135,30 +126,22 @@ public class FinalizacaoController implements Initializable{
 		}
 		catch(Exception e) {
 			System.out.println(e);
-		}
-		
+		}		
 	}
 	
 	// EVENTO PARA CARREGAR OS DADOS DA TABELA DE ACORDO COM A COLEÇÃO SELECIONADA NA COMBOBOX
 	@FXML
 	private void setTableDataFromComboBox() {
-		ListaProdutos.clear();
-		
-		if(!ListaAlteracaoEstoque.isEmpty() || !ListaAlteracaoEnchimentos.isEmpty() || !ListaAlteracaoCortes.isEmpty()) {
-			//COLOCAR PARA SALVAR ANTES DE MUDAR DE COLEÇÃO
-		}
+		ListaProdutos.clear();		
 		try {
 			String nomeColecao = comboboxProduto.getSelectionModel().getSelectedItem();
-			
 			query = "SELECT idColecao FROM colecao WHERE nomeColecao = '"+nomeColecao+"'";
-			preparedStatement = connection.prepareStatement(query);
-			resultSet = preparedStatement.executeQuery();
-						
+			resultSet = queryDB.selectQuery(query);
+			
 			while(resultSet.next()) {
-				String id = resultSet.getString("idColecao");				
+				String id = resultSet.getString("idColecao");
 				query = "SELECT * FROM produtos where idColecao = "+id;
-				preparedStatement = connection.prepareStatement(query);
-				resultSet = preparedStatement.executeQuery();
+				resultSet = queryDB.selectQuery(query);
 				
 				while (resultSet.next()) {
 					ListaProdutos.add(new Product(
@@ -170,7 +153,6 @@ public class FinalizacaoController implements Initializable{
 						resultSet.getString("observacoes")));
 				}				
 			}
-
 			colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
 			colNomeProduto.setCellValueFactory(new PropertyValueFactory<>("nomeProduto"));
 			colEmEstoque.setCellValueFactory(new PropertyValueFactory<>("estoque"));
@@ -193,15 +175,11 @@ public class FinalizacaoController implements Initializable{
 	private void setObservacoesData() {
 		if(!tabelaProduto.getSelectionModel().getSelectedItems().isEmpty()) {
 			String codigoSelecionado = tabelaProduto.getSelectionModel().getSelectedItem().getCodigo();
-			String query = "SELECT observacoes FROM produtos WHERE codigoProduto = ?";
 			try {
-				preparedStatement = connection.prepareStatement(query);
-				preparedStatement.setString(1, codigoSelecionado);
-				
-				resultSet = preparedStatement.executeQuery();				
+				query = "SELECT observacoes FROM produtos WHERE codigoProduto = '"+codigoSelecionado+"'";
+				resultSet = queryDB.selectQuery(query);			
 				while(resultSet.next()) {
-					String observacoesBanco = resultSet.getString("observacoes");
-					
+					String observacoesBanco = resultSet.getString("observacoes");					
 					observacoes.setText(observacoesBanco);
 				}
 			}
@@ -257,30 +235,25 @@ public class FinalizacaoController implements Initializable{
 	            T novoValor = event.getNewValue();	            
 	            if (novoValor instanceof Integer) {
 	            	// Descobrindo qual coluna foi alterada
-		            if (coluna == colEmEstoque) {       
-	            	
+		            if (coluna == colEmEstoque) {  
+		            	
 	                	valorEmEstoque = (Integer) novoValor;			                	
 	                    System.out.println("A coluna Em Estoque foi alterada para: " + valorEmEstoque);
 	                    ListaAlteracaoEstoque.add(new Product(codigoProduto, nomeProduto, valorEmEstoque, valorEnchimentos, valorCortes, textoObservacoes));
-		                    
-		                    System.out.println(ListaAlteracaoEstoque.toString());	  
+		                	  
 		            } else if (coluna == colEnchimentos) {
 	            	
 	                    valorEnchimentos = (Integer) novoValor;
 	                    System.out.println("A coluna Enchimentos foi alterada para: " + valorEnchimentos);
 	                    ListaAlteracaoEnchimentos.add(new Product(codigoProduto, nomeProduto, valorEmEstoque, valorEnchimentos, valorCortes, textoObservacoes));
 		                
-		                    System.out.println(ListaAlteracaoEnchimentos.toString()); 
 		            } else if (coluna == colCortes) {
 	            	
 	                    valorCortes = (Integer) novoValor;
 	                    System.out.println("A coluna Cortes foi alterada para: " + valorCortes);
 	                    ListaAlteracaoCortes.add(new Product(codigoProduto, nomeProduto, valorEmEstoque, valorEnchimentos, valorCortes, textoObservacoes));
 	                
-	                    System.out.println(ListaAlteracaoCortes.toString());	
-		            	}
-	            } else {
-	            	throw new NumberFormatException("ERRO AO TENTAR EDITAR, TENTE UTILIZAR APENAS NÚMEROS INTEIROS!");
+		            }
 	            }        	
         	}
         });
@@ -304,37 +277,38 @@ public class FinalizacaoController implements Initializable{
 							String idProduto = saveProduct.getCodigo();
 							int estoque = saveProduct.getEstoque();
 							
-							PR.updateEstoque(idProduto, estoque);
+							query = "UPDATE produtos SET estoque = "+estoque+" WHERE codigoProduto = "+idProduto;
+							queryDB.updateQuery(query);
 						}
-					}
-					
+					}					
 					if(!ListaAlteracaoEnchimentos.isEmpty()) {
 						for(int i = 0; i < ListaAlteracaoEnchimentos.size(); i++) {
 							Product saveProduct = ListaAlteracaoEnchimentos.get(i);
 							String idProduto = saveProduct.getCodigo();
 							int enchimentos = saveProduct.getEnchimentos();
 							
-							PR.updateEnchimentos(idProduto, enchimentos);
+							query = "UPDATE produtos SET enchimentos = "+enchimentos+" WHERE codigoProduto = "+idProduto;
+							queryDB.updateQuery(query);
 						}
-					}
-					
+					}					
 					if(!ListaAlteracaoCortes.isEmpty()) {
 						for(int i = 0; i < ListaAlteracaoCortes.size(); i++) {
 							Product saveProduct = ListaAlteracaoCortes.get(i);
 							String idProduto = saveProduct.getCodigo();
-							int enchimentos = saveProduct.getCortes();
+							int cortes = saveProduct.getCortes();
 							
-							PR.updateCortes(idProduto, enchimentos);
+							query = "UPDATE produtos SET cortes = "+cortes+" WHERE codigoProduto = "+idProduto;
+							queryDB.updateQuery(query);
 						}
-					}
-					
+					}					
 					if(!ListaAlteracaoObservacoes.isEmpty()) {
 						for(int i = 0; i < ListaAlteracaoObservacoes.size(); i++) {
 							Product saveProduct = ListaAlteracaoObservacoes.get(i);
 							String idProduto = saveProduct.getCodigo();
 							String observacao = saveProduct.getObservacoes();
 							
-							PR.updateObservacoes(idProduto, observacao);
+							query = "UPDATE produtos SET observacoes = "+observacao+" WHERE codigoProduto = "+idProduto;
+							queryDB.updateQuery(query);
 						}
 					}
 			}
@@ -351,19 +325,25 @@ public class FinalizacaoController implements Initializable{
 	private TextField produtoDiario;
 	@FXML
 	private TextField quantidadeProdutoDiario;
+	@FXML
+	private TableView<ProductDiario> tabelaDiario; 
+	@FXML
+	private TableColumn<Product, String> colNomeProdutoDiario;
+	@FXML
+	private TableColumn<Product, Integer> colQuantidadeDiario;
 	
 	@FXML
 	private void insertOnActionDiario() {
-		if(!produtoDiario.getText().isEmpty() && !quantidadeProdutoDiario.getText().isEmpty()) {
-			for(int i = 0; i < ListaDiario.size(); i++) {
-				
-				if(!ListaDiario.contains(new ProductDiario(produtoDiario.getText()))) {
-					ListaDiario.add(new ProductDiario(produtoDiario.getText(), quantidadeProdutoDiario.getText()));
-				}
-				else {
+		if(!produtoDiario.getText().isEmpty() && !quantidadeProdutoDiario.getText().isEmpty()) {				
+			if(!ListaDiario.contains(new ProductDiario(produtoDiario.getText()))) {
+				ListaDiario.add(new ProductDiario(produtoDiario.getText(), quantidadeProdutoDiario.getText()));
+			} 
+			else {
+				for(int i = 0; i < ListaDiario.size(); i++) {
 					
 				}
 			}
+			
 			ListaDiario.add(new ProductDiario(produtoDiario.getText(), quantidadeProdutoDiario.getText()));
 		}
 	}
