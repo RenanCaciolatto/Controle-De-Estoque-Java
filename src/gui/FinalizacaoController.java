@@ -4,8 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +31,7 @@ import javafx.util.converter.IntegerStringConverter;
 import model.entities.Historico;
 import model.entities.Product;
 import model.entities.ProductDiario;
+import model.repositores.HistoricoRepository;
 import model.repositores.ProductRepository;
 
 public class FinalizacaoController implements Initializable {
@@ -83,7 +84,8 @@ public class FinalizacaoController implements Initializable {
 		setComboBoxDate();
 		setOnEditCommitHandler();		
 		
-		
+		// TELA HISTORICO
+		startComboBox();
 	}
 
 	// CARREGA A LISTA COM TODOS OS PRODUTOS QUE VIER DO BANCO
@@ -279,6 +281,7 @@ public class FinalizacaoController implements Initializable {
 				ListaAlteracaoEnchimentos.clear();
 				ListaAlteracaoCortes.clear();
 				ListaAlteracaoObservacoes.clear();
+				break;
 			case 2:
 				if (!ListaAlteracaoEstoque.isEmpty()) {
 					for (int i = 0; i < ListaAlteracaoEstoque.size(); i++) {
@@ -331,6 +334,7 @@ public class FinalizacaoController implements Initializable {
 						ListaAlteracaoObservacoes.clear();
 					}
 				}
+				break;
 			}
 		}
 	}
@@ -341,7 +345,10 @@ public class FinalizacaoController implements Initializable {
 	 * 
 	 */
 
-	private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	Historico historico = new Historico();	
+	HistoricoRepository historicoRepo = new HistoricoRepository();
+	
+	private static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	@FXML
 	private TextField produtoDiario;
 	@FXML
@@ -401,12 +408,21 @@ public class FinalizacaoController implements Initializable {
 	
 	@FXML
 	private void onButtonDiarioPressed() {
-		int response = Alerts.showConfirmationAlert("SALVAR DIARIO", "DESEJA SALVAR TODOS OS ITENS NA DATA DE HOJE "+sdf.format(new Date())+"?");
+		int response = Alerts.showConfirmationAlert("SALVAR DIARIO", "DESEJA SALVAR TODOS OS ITENS NA DATA DE HOJE "+dtf.format(LocalDate.now())+"?");
 		switch(response) {
 			case 1:
 				ListaDiarioTotal.clear();
+				break;
 			case 2:
-				historico = new Historico(ListaDiarioTotal, new Date());
+				
+				LocalDate data = LocalDate.now();
+				String mes = LocalDate.now().getMonth().toString();				
+				mes = historicoRepo.traduct(mes);
+				int ano = LocalDate.now().getYear();
+				
+				historico = new Historico(ListaDiarioTotal, dtf.format(data).toString(), mes, ano);				
+				historicoRepo.insertQuery(historico);
+				break;
 		}
 	}
 	
@@ -416,5 +432,25 @@ public class FinalizacaoController implements Initializable {
 	 * 
 	 */
 	
-	Historico historico;
+	@FXML
+	private ComboBox<String> Months;
+	
+	ObservableList<String> AllMonths = FXCollections.observableArrayList();
+	
+	public void startComboBox() {
+		AllMonths.add("Janeiro");
+		AllMonths.add("Fevereiro");
+		AllMonths.add("Março");
+		AllMonths.add("Abril");
+		AllMonths.add("Maio");
+		AllMonths.add("Junho");
+		AllMonths.add("Julho");
+		AllMonths.add("Agosto");
+		AllMonths.add("Setembro");
+		AllMonths.add("Outubro");
+		AllMonths.add("Novembro");
+		AllMonths.add("Dezembro");
+	
+		Months.setItems(AllMonths);
+	}
 }

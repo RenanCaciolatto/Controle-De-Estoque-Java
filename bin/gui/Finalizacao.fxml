@@ -82,7 +82,21 @@
           </Tab>
           <Tab text="Histórico">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <ScrollPane hbarPolicy="NEVER" layoutX="53.0" layoutY="127.0" prefHeight="382.0" prefWidth="695.0">
+                           <content>
+                              <TableView prefHeight="381.0" prefWidth="693.0">
+                                <columns>
+                                  <TableColumn prefWidth="511.0" text="NOME DO PRODUTO" />
+                                  <TableColumn prefWidth="169.0" text="QUANTIDADE" />
+                                </columns>
+                              </TableView>
+                           </content>
+                        </ScrollPane>
+                        <ComboBox fx:id="Months" layoutX="53.0" layoutY="41.0" prefHeight="25.0" prefWidth="194.0" promptText="MÊS" visibleRowCount="3" />
+                        <ComboBox layoutX="264.0" layoutY="41.0" prefHeight="25.0" prefWidth="80.0" promptText="ANO" />
+                     </children></AnchorPane>
             </content>
           </Tab>
         </tabs>
