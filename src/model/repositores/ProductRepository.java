@@ -48,9 +48,6 @@ public class ProductRepository {
 		catch(Exception e) {
 			System.out.println(e.getMessage());
 		}
-		finally {
-			connection.close();
-		}
 		
 		return resultSet;
 	}

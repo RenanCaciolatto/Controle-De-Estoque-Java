@@ -25,5 +25,9 @@ public class ProductDiario {
 		this.quantity = quantity;
 	}
 	
-	
+	@Override
+	public String toString() {
+		
+		return "Produto: "+product+"; Quantidade: "+quantity;
+	}
 }

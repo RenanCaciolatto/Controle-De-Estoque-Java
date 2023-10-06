@@ -26,7 +26,7 @@
                               <Font size="18.0" />
                            </font>
                         </Label>
-                        <TextField fx:id="produtoDiario" layoutX="222.0" layoutY="27.0" prefHeight="30.0" prefWidth="339.0">
+                        <TextField fx:id="produtoDiario" layoutX="222.0" layoutY="27.0" onAction="#insertOnActionDiario" prefHeight="30.0" prefWidth="339.0">
                            <font>
                               <Font size="14.0" />
                            </font>
@@ -36,9 +36,9 @@
                               <Font size="18.0" />
                            </font>
                         </Label>
-                        <ScrollPane hbarPolicy="NEVER" layoutX="39.0" layoutY="106.0" prefHeight="433.0" prefWidth="719.0">
+                        <ScrollPane hbarPolicy="NEVER" layoutX="39.0" layoutY="106.0" prefHeight="399.0" prefWidth="719.0">
                            <content>
-                              <TableView fx:id="tabelaDiario" prefHeight="439.0" prefWidth="718.0">
+                              <TableView fx:id="tabelaDiario" prefHeight="397.0" prefWidth="718.0">
                                 <columns>
                                   <TableColumn fx:id="colNomeProdutoDiario" prefWidth="549.0" text="NOME DO PRODUTO" />
                                   <TableColumn fx:id="colQuantidadeDiario" prefWidth="155.0" text="QUANTIDADE" />
@@ -46,11 +46,12 @@
                               </TableView>
                            </content>
                         </ScrollPane>
-                        <TextField fx:id="quantidadeProdutoDiario" layoutX="222.0" layoutY="62.0" prefHeight="30.0" prefWidth="76.0">
+                        <TextField fx:id="quantidadeProdutoDiario" layoutX="222.0" layoutY="62.0" onAction="#insertOnActionDiario" prefHeight="30.0" prefWidth="76.0">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </TextField>
+                        <Button fx:id="botaoSalvar" layoutX="688.0" layoutY="516.0" mnemonicParsing="false" onAction="#onButtonDiarioPressed" prefHeight="33.0" prefWidth="70.0" text="SALVAR" />
                      </children></AnchorPane>
                </content>
             </Tab>
