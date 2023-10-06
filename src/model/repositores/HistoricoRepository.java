@@ -62,7 +62,7 @@ public class HistoricoRepository {
 	    return traductedMonth.toUpperCase();
 	}
 
-	public ResultSet selectQuery(String querySelect) throws SQLException {
+	public ResultSet selectQuery(String querySelect) {
 		try {
 			connection = DBConnection.Conexao();
 			query = querySelect;
@@ -80,7 +80,7 @@ public class HistoricoRepository {
 	
 	public void insertQuery(Historico historico) {
 		for (int i = 0; i < historico.getLista().size(); i++) {
-			query = "INSERT INTO historico(nomeProduto, quantidade, dataAlteracao, mesAlteracao, ano) VALUES(?,?,?,?,?)";
+			query = "INSERT INTO historico(nomeProduto, quantidade, dataAlteracao, mes, ano) VALUES(?,?,?,?,?)";
 			try {
 			    connection = DBConnection.Conexao();
 			    preparedStatement = connection.prepareStatement(query);
@@ -105,7 +105,7 @@ public class HistoricoRepository {
 			            connection.close();
 			        }
 			    } catch (SQLException e) {
-			        e.printStackTrace(); // Ou trate de outra forma
+			        System.out.println(e.getMessage());
 			    }
 			}			
 		}

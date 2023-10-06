@@ -70,7 +70,7 @@ public class FinalizacaoController implements Initializable {
 	@Override
 	public void initialize(java.net.URL arg0, ResourceBundle arg1) {
 		// TELA DIÁRIO
-		Constraints.setTextFieldInteger(quantidadeProdutoDiario);		
+		Constraints.setTextFieldInteger(quantidadeProdutoDiario);
 		tabelaDiario.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
 
 			if (!tabelaDiario.getSelectionModel().getSelectedItem().getProduct().isEmpty()) {
@@ -78,14 +78,15 @@ public class FinalizacaoController implements Initializable {
 				quantidadeProdutoDiario.setText(tabelaDiario.getSelectionModel().getSelectedItem().getQuantity());
 			}
 		});
-		
+
 		// TELA ESTOQUE
 		loadDate();
 		setComboBoxDate();
-		setOnEditCommitHandler();		
-		
+		setOnEditCommitHandler();
+
 		// TELA HISTORICO
-		startComboBox();
+		startComboBoxMonths();
+		startComboBoxYears();
 	}
 
 	// CARREGA A LISTA COM TODOS OS PRODUTOS QUE VIER DO BANCO
@@ -345,9 +346,9 @@ public class FinalizacaoController implements Initializable {
 	 * 
 	 */
 
-	Historico historico = new Historico();	
+	Historico historico = new Historico();
 	HistoricoRepository historicoRepo = new HistoricoRepository();
-	
+
 	private static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	@FXML
 	private TextField produtoDiario;
@@ -361,8 +362,7 @@ public class FinalizacaoController implements Initializable {
 	private TableColumn<Product, Integer> colQuantidadeDiario;
 	@FXML
 	private Button botaoSalvar;
-	
-	
+
 	ObservableList<ProductDiario> ListaDiarioTotal = FXCollections.observableArrayList();
 	ObservableList<ProductDiario> ListaDiario = FXCollections.observableArrayList();
 
@@ -404,40 +404,51 @@ public class FinalizacaoController implements Initializable {
 		}
 		refreshTableDiario();
 	}
-	
-	
+
 	@FXML
 	private void onButtonDiarioPressed() {
-		int response = Alerts.showConfirmationAlert("SALVAR DIARIO", "DESEJA SALVAR TODOS OS ITENS NA DATA DE HOJE "+dtf.format(LocalDate.now())+"?");
-		switch(response) {
-			case 1:
-				ListaDiarioTotal.clear();
-				break;
-			case 2:
-				
-				LocalDate data = LocalDate.now();
-				String mes = LocalDate.now().getMonth().toString();				
-				mes = historicoRepo.traduct(mes);
-				int ano = LocalDate.now().getYear();
-				
-				historico = new Historico(ListaDiarioTotal, dtf.format(data).toString(), mes, ano);				
-				historicoRepo.insertQuery(historico);
-				break;
+		int response = Alerts.showConfirmationAlert("SALVAR DIARIO",
+				"DESEJA SALVAR TODOS OS ITENS NA DATA DE HOJE " + dtf.format(LocalDate.now()) + "?");
+		switch (response) {
+		case 1:
+			ListaDiarioTotal.clear();
+			break;
+		case 2:
+
+			LocalDate data = LocalDate.now();
+			String mes = LocalDate.now().getMonth().toString();
+			mes = historicoRepo.traduct(mes);
+			int ano = LocalDate.now().getYear();
+
+			historico = new Historico(ListaDiarioTotal, dtf.format(data).toString(), mes, ano);
+			historicoRepo.insertQuery(historico);
+			break;
 		}
 	}
-	
+
 	/*
 	 * 
 	 * PÁGINA DE HISTÓRICO
 	 * 
 	 */
-	
+
 	@FXML
 	private ComboBox<String> Months;
-	
+	@FXML
+	private ComboBox<Integer> Years;
+	@FXML
+	private Button buttonBuscar;
+	@FXML
+	private TableView<ProductDiario> TableHistorico;
+	@FXML
+	private TableColumn<ProductDiario, String> colProdutoHistorico;
+	@FXML
+	private TableColumn<ProductDiario, Integer> colquantidadeProdutoHistorico;
 	ObservableList<String> AllMonths = FXCollections.observableArrayList();
+	ObservableList<Integer> AllYears = FXCollections.observableArrayList();
+	ObservableList<ProductDiario> listaHistorico = FXCollections.observableArrayList();
 	
-	public void startComboBox() {
+	public void startComboBoxMonths() {
 		AllMonths.add("Janeiro");
 		AllMonths.add("Fevereiro");
 		AllMonths.add("Março");
@@ -450,7 +461,54 @@ public class FinalizacaoController implements Initializable {
 		AllMonths.add("Outubro");
 		AllMonths.add("Novembro");
 		AllMonths.add("Dezembro");
-	
+
 		Months.setItems(AllMonths);
+	}
+	
+	public void startComboBoxYears() {
+		query = "SELECT * FROM historico";
+		try {
+			resultSet = historicoRepo.selectQuery(query);
+			
+			while(resultSet.next()) {					
+				int ano = resultSet.getInt("ano");
+				if(!AllYears.contains(ano)) {
+					AllYears.add(ano);
+				}				
+			}
+			Years.setItems(AllYears);
+		}
+		catch(SQLException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	@FXML
+	private void loadDataHistorico() {		
+	    if (!Months.getSelectionModel().getSelectedItem().isEmpty() && Years.getSelectionModel().getSelectedItem() != null) {			
+	        query = "SELECT * FROM historico WHERE mes = '"+Months.getSelectionModel().getSelectedItem().toUpperCase()+"' AND ano = "+Years.getSelectionModel().getSelectedItem();
+	        try {				
+	            resultSet = historicoRepo.selectQuery(query);
+
+	            colProdutoHistorico.setCellValueFactory(new PropertyValueFactory<>("product"));
+	            colquantidadeProdutoHistorico.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+
+	            listaHistorico.clear();
+	            while (resultSet.next()) {
+	                String nomeProduto = resultSet.getString("nomeProduto");
+	                Integer quantidade = resultSet.getInt("quantidade");
+	                String quantidadeFormat = quantidade.toString();
+
+	                listaHistorico.add(new ProductDiario(nomeProduto, quantidadeFormat));
+	            }
+
+	            TableHistorico.setItems(listaHistorico);
+	        } catch (SQLException e) {
+	            System.out.println(e.getMessage());
+	        }
+	    }
+	    else {
+			Alerts.showAlert("CAMPO VAZIO", null, "CERTIFIQUE-SE DE PREENCHER TODOS OS CAMPOS ANTES DE EXECUTAR A BUSCA", AlertType.INFORMATION);
+		}
 	}
 }

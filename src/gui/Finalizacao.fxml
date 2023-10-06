@@ -84,18 +84,19 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <ScrollPane hbarPolicy="NEVER" layoutX="53.0" layoutY="127.0" prefHeight="382.0" prefWidth="695.0">
+                        <ScrollPane hbarPolicy="NEVER" layoutX="53.0" layoutY="81.0" prefHeight="461.0" prefWidth="695.0">
                            <content>
-                              <TableView prefHeight="381.0" prefWidth="693.0">
+                              <TableView fx:id="TableHistorico" prefHeight="461.0" prefWidth="693.0">
                                 <columns>
-                                  <TableColumn prefWidth="511.0" text="NOME DO PRODUTO" />
-                                  <TableColumn prefWidth="169.0" text="QUANTIDADE" />
+                                  <TableColumn fx:id="colProdutoHistorico" prefWidth="511.0" text="NOME DO PRODUTO" />
+                                  <TableColumn fx:id="colquantidadeProdutoHistorico" prefWidth="169.0" text="QUANTIDADE" />
                                 </columns>
                               </TableView>
                            </content>
                         </ScrollPane>
-                        <ComboBox fx:id="Months" layoutX="53.0" layoutY="41.0" prefHeight="25.0" prefWidth="194.0" promptText="MÊS" visibleRowCount="3" />
-                        <ComboBox layoutX="264.0" layoutY="41.0" prefHeight="25.0" prefWidth="80.0" promptText="ANO" />
+                        <ComboBox fx:id="Months" layoutX="53.0" layoutY="38.0" prefHeight="28.0" prefWidth="194.0" promptText="MÊS" visibleRowCount="3" />
+                        <ComboBox fx:id="Years" layoutX="264.0" layoutY="38.0" prefHeight="28.0" prefWidth="80.0" promptText="ANO" />
+                        <Button fx:id="buttonBuscar" layoutX="677.0" layoutY="38.0" mnemonicParsing="false" onAction="#loadDataHistorico" prefHeight="29.0" prefWidth="71.0" text="BUSCAR" />
                      </children></AnchorPane>
             </content>
           </Tab>
