@@ -68,11 +68,22 @@ public class FinalizacaoController implements Initializable {
 	// COMANDOS QUE SERÃO EXECUTADOS ASSIM QUE EXECUTAR O PROGRAMA
 	@Override
 	public void initialize(java.net.URL arg0, ResourceBundle arg1) {
-		// TODO Auto-generated method stub
+		// TELA DIÁRIO
+		Constraints.setTextFieldInteger(quantidadeProdutoDiario);		
+		tabelaDiario.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+
+			if (!tabelaDiario.getSelectionModel().getSelectedItem().getProduct().isEmpty()) {
+				produtoDiario.setText(tabelaDiario.getSelectionModel().getSelectedItem().getProduct());
+				quantidadeProdutoDiario.setText(tabelaDiario.getSelectionModel().getSelectedItem().getQuantity());
+			}
+		});
+		
+		// TELA ESTOQUE
 		loadDate();
 		setComboBoxDate();
-		setOnEditCommitHandler();
-		Constraints.setTextFieldInteger(quantidadeProdutoDiario);
+		setOnEditCommitHandler();		
+		
+		
 	}
 
 	// CARREGA A LISTA COM TODOS OS PRODUTOS QUE VIER DO BANCO
@@ -386,6 +397,7 @@ public class FinalizacaoController implements Initializable {
 		}
 		refreshTableDiario();
 	}
+	
 	
 	@FXML
 	private void onButtonDiarioPressed() {
