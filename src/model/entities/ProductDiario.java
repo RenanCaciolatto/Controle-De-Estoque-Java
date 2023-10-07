@@ -25,9 +25,12 @@ public class ProductDiario {
 		this.quantity = quantity;
 	}
 	
+	public void sumQuantity(ProductDiario produto, int quantidade) {
+		produto.setQuantity(produto.getQuantity() + quantidade);
+	}
+	
 	@Override
-	public String toString() {
-		
+	public String toString() {		
 		return "Produto: "+product+"; Quantidade: "+quantity;
 	}
 }

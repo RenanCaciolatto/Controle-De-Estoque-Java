@@ -444,6 +444,8 @@ public class FinalizacaoController implements Initializable {
 	private TableColumn<ProductDiario, String> colProdutoHistorico;
 	@FXML
 	private TableColumn<ProductDiario, Integer> colquantidadeProdutoHistorico;
+	
+	ProductDiario productDiario;
 	ObservableList<String> AllMonths = FXCollections.observableArrayList();
 	ObservableList<Integer> AllYears = FXCollections.observableArrayList();
 	ObservableList<ProductDiario> listaHistorico = FXCollections.observableArrayList();
@@ -484,31 +486,52 @@ public class FinalizacaoController implements Initializable {
 	}
 	
 	@FXML
-	private void loadDataHistorico() {		
-	    if (!Months.getSelectionModel().getSelectedItem().isEmpty() && Years.getSelectionModel().getSelectedItem() != null) {			
-	        query = "SELECT * FROM historico WHERE mes = '"+Months.getSelectionModel().getSelectedItem().toUpperCase()+"' AND ano = "+Years.getSelectionModel().getSelectedItem();
-	        try {				
-	            resultSet = historicoRepo.selectQuery(query);
+	private void loadDataHistorico() {
+		if (!Months.getSelectionModel().getSelectedItem().isEmpty()
+				&& Years.getSelectionModel().getSelectedItem() != null) {
+			query = "SELECT * FROM historico WHERE mes = '" + Months.getSelectionModel().getSelectedItem().toUpperCase()
+					+ "' AND ano = " + Years.getSelectionModel().getSelectedItem();
+			try {
+				resultSet = historicoRepo.selectQuery(query);
 
-	            colProdutoHistorico.setCellValueFactory(new PropertyValueFactory<>("product"));
-	            colquantidadeProdutoHistorico.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+				colProdutoHistorico.setCellValueFactory(new PropertyValueFactory<>("product"));
+				colquantidadeProdutoHistorico.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
-	            listaHistorico.clear();
-	            while (resultSet.next()) {
-	                String nomeProduto = resultSet.getString("nomeProduto");
-	                Integer quantidade = resultSet.getInt("quantidade");
-	                String quantidadeFormat = quantidade.toString();
+				listaHistorico.clear();
+				while (resultSet.next()) {
+				    String nomeProduto = resultSet.getString("nomeProduto");
+				    Integer quantidade = resultSet.getInt("quantidade");
+				    String quantidadeFormat = quantidade.toString();
 
-	                listaHistorico.add(new ProductDiario(nomeProduto, quantidadeFormat));
-	            }
+				    boolean produtoEncontrado = false;
 
-	            TableHistorico.setItems(listaHistorico);
-	        } catch (SQLException e) {
-	            System.out.println(e.getMessage());
-	        }
-	    }
-	    else {
-			Alerts.showAlert("CAMPO VAZIO", null, "CERTIFIQUE-SE DE PREENCHER TODOS OS CAMPOS ANTES DE EXECUTAR A BUSCA", AlertType.INFORMATION);
+				    for (int i = 0; i < listaHistorico.size(); i++) {
+				        if (listaHistorico.get(i).getProduct().equals(nomeProduto)) {
+				            String quantidadeCarregada = listaHistorico.get(i).getQuantity();
+				            Integer formatter = Integer.parseInt(quantidadeCarregada);
+				            Integer quantidadeTotal = formatter + quantidade;
+				            String quantidadeAtualizada = quantidadeTotal.toString();
+
+				            productDiario = new ProductDiario(nomeProduto, quantidadeAtualizada);
+				            listaHistorico.set(i, productDiario); 
+				            produtoEncontrado = true;
+				            break;
+				        }
+				    }
+
+				    if (!produtoEncontrado) {
+				        productDiario = new ProductDiario(nomeProduto, quantidadeFormat);
+				        listaHistorico.add(productDiario);
+				    }
+				}
+				System.out.println("oi");
+				TableHistorico.setItems(listaHistorico);
+			} catch (SQLException e) {
+				System.out.println(e.getMessage());
+			}
+		} else {
+			Alerts.showAlert("CAMPO VAZIO", null,
+					"CERTIFIQUE-SE DE PREENCHER TODOS OS CAMPOS ANTES DE EXECUTAR A BUSCA", AlertType.INFORMATION);
 		}
 	}
 }
