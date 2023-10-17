@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
@@ -13,90 +14,105 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.FinalizacaoController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #0a66b5;" stylesheets="@../application/application.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.FinalizacaoController">
    <children>
-      <TabPane prefHeight="600.0" prefWidth="800.0" tabClosingPolicy="UNAVAILABLE">
+      <TabPane prefHeight="600.0" prefWidth="800.0" style="-fx-border-color: black;" tabClosingPolicy="UNAVAILABLE">
         <tabs>
-            <Tab text="Diário">
+            <Tab style="-fx-background-color: #e4e5e6; -fx-border-color: black; -fx-border-radius: 4; -fx-text-fill: white;" text="Diário">
                <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #bac6d5;">
                      <children>
                         <Label layoutX="39.0" layoutY="24.0" prefHeight="35.0" prefWidth="158.0" text="Nome do Produto:">
                            <font>
-                              <Font size="18.0" />
+                              <Font name="System Bold" size="18.0" />
                            </font>
                         </Label>
-                        <TextField fx:id="produtoDiario" layoutX="222.0" layoutY="27.0" onAction="#insertOnActionDiario" prefHeight="30.0" prefWidth="339.0">
+                        <TextField fx:id="produtoDiario" layoutX="222.0" layoutY="27.0" onAction="#eventoInserirDiario" prefHeight="30.0" prefWidth="339.0" style="-fx-border-color: black; -fx-border-radius: 3;">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </TextField>
                         <Label layoutX="39.0" layoutY="59.0" prefHeight="35.0" prefWidth="126.0" text="Quantidade:">
                            <font>
-                              <Font size="18.0" />
+                              <Font name="System Bold" size="18.0" />
                            </font>
                         </Label>
-                        <ScrollPane hbarPolicy="NEVER" layoutX="39.0" layoutY="106.0" prefHeight="399.0" prefWidth="719.0">
+                        <ScrollPane hbarPolicy="NEVER" layoutX="39.0" layoutY="106.0" prefHeight="399.0" prefWidth="719.0" style="-fx-border-color: black;">
                            <content>
                               <TableView fx:id="tabelaDiario" prefHeight="397.0" prefWidth="718.0">
                                 <columns>
-                                  <TableColumn fx:id="colNomeProdutoDiario" prefWidth="549.0" text="NOME DO PRODUTO" />
-                                  <TableColumn fx:id="colQuantidadeDiario" prefWidth="155.0" text="QUANTIDADE" />
+                                  <TableColumn fx:id="colNomeProdutoDiario" prefWidth="549.0" style="-fx-border-color: black;" text="NOME DO PRODUTO" />
+                                  <TableColumn fx:id="colQuantidadeDiario" prefWidth="155.0" style="-fx-border-color: black;" text="QUANTIDADE" />
                                 </columns>
                               </TableView>
                            </content>
                         </ScrollPane>
-                        <TextField fx:id="quantidadeProdutoDiario" layoutX="222.0" layoutY="62.0" onAction="#insertOnActionDiario" prefHeight="30.0" prefWidth="76.0">
+                        <TextField fx:id="quantidadeProdutoDiario" layoutX="222.0" layoutY="62.0" onAction="#eventoInserirDiario" prefHeight="30.0" prefWidth="87.0" style="-fx-border-color: black; -fx-border-radius: 3;">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </TextField>
-                        <Button fx:id="botaoSalvar" layoutX="688.0" layoutY="516.0" mnemonicParsing="false" onAction="#onButtonDiarioPressed" prefHeight="33.0" prefWidth="70.0" text="SALVAR" />
+                        <Button fx:id="botaoSalvar" layoutX="675.0" layoutY="516.0" mnemonicParsing="false" onAction="#botaoDiarioPressionado" prefHeight="33.0" prefWidth="83.0" style="-fx-border-color: black; -fx-text-fill: white; -fx-background-color: #0a66b5; -fx-border-radius: 3;" text="SALVAR" textFill="#9a9595">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor></Button>
+                        <Button fx:id="botaoDescartar" layoutX="577.0" layoutY="516.0" mnemonicParsing="false" onAction="#botaoDescartarPressionado" prefHeight="33.0" prefWidth="83.0" style="-fx-border-color: black; -fx-text-fill: white; -fx-background-color: #0a66b5; -fx-border-radius: 3;" text="EXCLUIR" textFill="#9a9595">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </Button>
                      </children></AnchorPane>
                </content>
             </Tab>
-          <Tab onCloseRequest="#updateStock" onSelectionChanged="#updateStock" text="Estoque">
+          <Tab onCloseRequest="#atualizarEstoque" onSelectionChanged="#atualizarEstoque" style="-fx-background-color: #e4e5e6; -fx-border-color: black; -fx-border-radius: 4;" text="Estoque">
                <content>
-                  <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="571.0" prefWidth="800.0">
+                  <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="571.0" prefWidth="800.0" style="-fx-background-color: #bac6d5;" stylesheets="@../application/application.css">
                      <children>
-                        <ComboBox fx:id="comboboxProduto" layoutX="32.0" layoutY="30.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#setTableDataFromComboBox" onShowing="#updateStock" prefHeight="29.0" prefWidth="326.0" promptText="Coleções" />
-                        <Label layoutX="32.0" layoutY="448.0" prefHeight="35.0" prefWidth="138.0" text="Observações">
+                        <ComboBox fx:id="comboboxProduto" layoutX="32.0" layoutY="30.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#definirTabelaPelaComboBox" onMouseClicked="#atualizarEstoque" prefHeight="29.0" prefWidth="326.0" promptText="COLEÇÕES" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white;">
+                           <cursor>
+                              <Cursor fx:constant="DEFAULT" />
+                           </cursor></ComboBox>
+                        <Label layoutX="32.0" layoutY="459.0" prefHeight="22.0" prefWidth="138.0" text="Observações">
                            <font>
-                              <Font size="24.0" />
+                              <Font name="System Bold" size="18.0" />
                            </font>
                         </Label>
-                        <TextArea fx:id="observacoes" layoutX="32.0" layoutY="484.0" onMouseExited="#setOndEditObservacoes" prefHeight="74.0" prefWidth="317.0" />
-                        <TableView fx:id="tabelaProduto" editable="true" layoutX="32.0" layoutY="68.0" onMouseClicked="#setObservacoesData" prefHeight="369.0" prefWidth="730.0">
-                           <columns>
-                              <TableColumn fx:id="colCodigo" editable="false" prefWidth="76.0" text="Código" />
-                              <TableColumn fx:id="colNomeProduto" editable="false" prefWidth="395.0" text="Nome do Produto" />
-                              <TableColumn fx:id="colEmEstoque" minWidth="0.0" onEditCommit="#setOnEditCommitHandler" prefWidth="97.0" text="Em Estoque" />
-                              <TableColumn fx:id="colEnchimentos" onEditCommit="#setOnEditCommitHandler" prefWidth="87.0" text="Enchimentos" />
-                              <TableColumn fx:id="colCortes" onEditCommit="#setOnEditCommitHandler" prefWidth="59.0" text="Cortes" />
-                           </columns>
-                        </TableView>
-                        <Button layoutX="707.0" layoutY="503.0" mnemonicParsing="false" onAction="#updateStock" prefHeight="36.0" prefWidth="62.0" text="SALVAR" />
+                        <TextArea fx:id="observacoes" layoutX="32.0" layoutY="484.0" onMouseExited="#definirObservacoesAoEditar" prefHeight="63.0" prefWidth="324.0" style="-fx-border-color: black; -fx-border-radius: 3;" />
+                        <Button cache="true" cacheHint="SPEED" depthTest="DISABLE" layoutX="679.0" layoutY="516.0" mnemonicParsing="false" onAction="#atualizarEstoque" prefHeight="33.0" prefWidth="83.0" style="-fx-border-color: black; -fx-background-color: #0a66b5; -fx-text-fill: white; -fx-border-radius: 3;" text="SALVAR" />
+                        <ScrollPane hbarPolicy="NEVER" layoutX="32.0" layoutY="82.0" prefHeight="369.0" prefWidth="730.0" style="-fx-border-color: black;" stylesheets="@../application/application.css">
+                           <content>
+                              <TableView fx:id="tabelaProduto" editable="true" onMouseClicked="#definirObservacoes" prefHeight="369.0" prefWidth="730.0">
+                                 <columns>
+                                    <TableColumn fx:id="colCodigo" editable="false" prefWidth="76.0" style="-fx-border-color: black;" text="Código" />
+                                    <TableColumn fx:id="colNomeProduto" editable="false" prefWidth="395.0" style="-fx-border-color: black;" text="Nome do Produto" />
+                                    <TableColumn fx:id="colEmEstoque" minWidth="0.0" onEditCommit="#manipuladorDeCommit" prefWidth="97.0" style="-fx-border-color: black;" text="Em Estoque" />
+                                    <TableColumn fx:id="colEnchimentos" onEditCommit="#manipuladorDeCommit" prefWidth="87.0" style="-fx-border-color: black;" text="Enchimentos" />
+                                    <TableColumn fx:id="colCortes" onEditCommit="#manipuladorDeCommit" prefWidth="59.0" style="-fx-border-color: black;" text="Cortes" />
+                                 </columns>
+                              </TableView>
+                           </content>
+                        </ScrollPane>
                      </children>
                   </AnchorPane>
                </content>
           </Tab>
-          <Tab text="Histórico">
+          <Tab style="-fx-background-color: #e4e5e6; -fx-border-color: black; -fx-border-radius: 4;" text="Histórico">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #bac6d5;">
                      <children>
-                        <ScrollPane hbarPolicy="NEVER" layoutX="53.0" layoutY="81.0" prefHeight="461.0" prefWidth="695.0">
+                        <ScrollPane hbarPolicy="NEVER" layoutX="32.0" layoutY="82.0" prefHeight="461.0" prefWidth="744.0" style="-fx-border-color: black;" stylesheets="@../application/application.css">
                            <content>
-                              <TableView fx:id="TableHistorico" prefHeight="461.0" prefWidth="693.0">
+                              <TableView fx:id="TabelaHistorico" prefHeight="460.0" prefWidth="743.0">
                                 <columns>
-                                  <TableColumn fx:id="colProdutoHistorico" prefWidth="511.0" text="NOME DO PRODUTO" />
-                                  <TableColumn fx:id="colquantidadeProdutoHistorico" prefWidth="169.0" text="QUANTIDADE" />
+                                  <TableColumn fx:id="colProdutoHistorico" prefWidth="565.0" style="-fx-border-color: black;" text="NOME DO PRODUTO" />
+                                  <TableColumn fx:id="colquantidadeProdutoHistorico" prefWidth="161.0" style="-fx-border-color: black;" text="QUANTIDADE" />
                                 </columns>
                               </TableView>
                            </content>
                         </ScrollPane>
-                        <ComboBox fx:id="Months" layoutX="53.0" layoutY="38.0" prefHeight="28.0" prefWidth="194.0" promptText="MÊS" visibleRowCount="3" />
-                        <ComboBox fx:id="Years" layoutX="264.0" layoutY="38.0" prefHeight="28.0" prefWidth="80.0" promptText="ANO" />
-                        <Button fx:id="buttonBuscar" layoutX="677.0" layoutY="38.0" mnemonicParsing="false" onAction="#loadDataHistorico" prefHeight="29.0" prefWidth="71.0" text="BUSCAR" />
+                        <ComboBox fx:id="Meses" layoutX="32.0" layoutY="30.0" prefHeight="28.0" prefWidth="194.0" promptText="MÊS" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white;" visibleRowCount="3" />
+                        <ComboBox fx:id="Anos" layoutX="243.0" layoutY="30.0" prefHeight="28.0" prefWidth="80.0" promptText="ANO" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white;" />
+                        <Button fx:id="botaoBuscar" layoutX="340.0" layoutY="30.0" mnemonicParsing="false" onAction="#carregarDadosHistorico" prefHeight="29.0" prefWidth="81.0" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: #0a66b5; -fx-text-fill: white;" text="BUSCAR" />
                      </children></AnchorPane>
             </content>
           </Tab>

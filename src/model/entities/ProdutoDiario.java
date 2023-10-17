@@ -1,13 +1,13 @@
 package model.entities;
 
-public class ProductDiario {
+public class ProdutoDiario {
 	private String product;
 	private String quantity;	
 	
-	public ProductDiario(String product) {		
+	public ProdutoDiario(String product) {		
 	}
 	
-	public ProductDiario(String product, String quantity) {
+	public ProdutoDiario(String product, String quantity) {
 		this.product = product;
 		this.quantity = quantity;
 	}
@@ -25,7 +25,7 @@ public class ProductDiario {
 		this.quantity = quantity;
 	}
 	
-	public void sumQuantity(ProductDiario produto, int quantidade) {
+	public void sumQuantity(ProdutoDiario produto, int quantidade) {
 		produto.setQuantity(produto.getQuantity() + quantidade);
 	}
 	

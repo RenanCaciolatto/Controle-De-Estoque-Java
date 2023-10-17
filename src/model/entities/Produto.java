@@ -1,6 +1,6 @@
 package model.entities;
 
-public class Product{
+public class Produto{
 	private String codigo;
 	private String nomeProduto;
 	private Integer estoque;
@@ -9,10 +9,10 @@ public class Product{
 	private String observacoes;
 	
 	
-	public Product() {
+	public Produto() {
 	}
 	
-	public Product(String codigo, String nomeProduto, Integer estoque, Integer enchimentos, Integer cortes, String observacoes) {
+	public Produto(String codigo, String nomeProduto, Integer estoque, Integer enchimentos, Integer cortes, String observacoes) {
 		this.codigo = codigo;
 		this.nomeProduto = nomeProduto;
 		this.estoque = estoque;

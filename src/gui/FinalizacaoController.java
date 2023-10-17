@@ -29,8 +29,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.IntegerStringConverter;
 import model.entities.Historico;
-import model.entities.Product;
-import model.entities.ProductDiario;
+import model.entities.Produto;
+import model.entities.ProdutoDiario;
 import model.repositores.HistoricoRepository;
 import model.repositores.ProductRepository;
 
@@ -38,17 +38,17 @@ public class FinalizacaoController implements Initializable {
 	@FXML
 	private ComboBox<String> comboboxProduto;
 	@FXML
-	private TableView<Product> tabelaProduto;
+	private TableView<Produto> tabelaProduto;
 	@FXML
-	private TableColumn<Product, String> colCodigo;
+	private TableColumn<Produto, String> colCodigo;
 	@FXML
-	private TableColumn<Product, String> colNomeProduto;
+	private TableColumn<Produto, String> colNomeProduto;
 	@FXML
-	private TableColumn<Product, Integer> colEmEstoque;
+	private TableColumn<Produto, Integer> colEmEstoque;
 	@FXML
-	private TableColumn<Product, Integer> colEnchimentos;
+	private TableColumn<Produto, Integer> colEnchimentos;
 	@FXML
-	private TableColumn<Product, Integer> colCortes;
+	private TableColumn<Produto, Integer> colCortes;
 	@FXML
 	private TextArea observacoes;
 
@@ -57,14 +57,14 @@ public class FinalizacaoController implements Initializable {
 	Connection connection = null;
 	PreparedStatement preparedStatement = null;
 	ResultSet resultSet = null;
-	Product produto = null;
+	Produto produto = null;
 
-	ObservableList<Product> ListaProdutos = FXCollections.observableArrayList();
+	ObservableList<Produto> ListaProdutos = FXCollections.observableArrayList();
 	ObservableList<String> ListaColecao = FXCollections.observableArrayList();
-	ObservableList<Product> ListaAlteracaoEstoque = FXCollections.observableArrayList();
-	ObservableList<Product> ListaAlteracaoEnchimentos = FXCollections.observableArrayList();
-	ObservableList<Product> ListaAlteracaoCortes = FXCollections.observableArrayList();
-	ObservableList<Product> ListaAlteracaoObservacoes = FXCollections.observableArrayList();
+	ObservableList<Produto> ListaAlteracaoEstoque = FXCollections.observableArrayList();
+	ObservableList<Produto> ListaAlteracaoEnchimentos = FXCollections.observableArrayList();
+	ObservableList<Produto> ListaAlteracaoCortes = FXCollections.observableArrayList();
+	ObservableList<Produto> ListaAlteracaoObservacoes = FXCollections.observableArrayList();
 
 	// COMANDOS QUE SERÃO EXECUTADOS ASSIM QUE EXECUTAR O PROGRAMA
 	@Override
@@ -72,32 +72,36 @@ public class FinalizacaoController implements Initializable {
 		// TELA DIÁRIO
 		Constraints.setTextFieldInteger(quantidadeProdutoDiario);
 		tabelaDiario.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+			if (newSelection != null && newSelection.getProduct() != null && newSelection.getQuantity() != null) {
+				String product = newSelection.getProduct();
+				String quantity = newSelection.getQuantity();
 
-			if (!tabelaDiario.getSelectionModel().getSelectedItem().getProduct().isEmpty()) {
-				produtoDiario.setText(tabelaDiario.getSelectionModel().getSelectedItem().getProduct());
-				quantidadeProdutoDiario.setText(tabelaDiario.getSelectionModel().getSelectedItem().getQuantity());
+				if (!product.isEmpty() && !quantity.isEmpty()) {
+					produtoDiario.setText(product);
+					quantidadeProdutoDiario.setText(quantity);
+				}
 			}
 		});
 
 		// TELA ESTOQUE
-		loadDate();
-		setComboBoxDate();
-		setOnEditCommitHandler();
+		carregarDados();
+		definirDadosDaComboBox();
+		manipuladorDeCommit();
 
 		// TELA HISTORICO
-		startComboBoxMonths();
-		startComboBoxYears();
+		iniciarComboBoxMeses();
+		iniciarComboBoxAnos();
 	}
 
 	// CARREGA A LISTA COM TODOS OS PRODUTOS QUE VIER DO BANCO
-	private void refreshTable() {
+	private void atualizarTabela() {
 		try {
 			ListaProdutos.clear();
 			query = "SELECT * FROM produtos";
 			resultSet = queryDB.selectQuery(query);
 
 			while (resultSet.next()) {
-				ListaProdutos.add(new Product(resultSet.getString("codigoProduto"), resultSet.getString("nomeProduto"),
+				ListaProdutos.add(new Produto(resultSet.getString("codigoProduto"), resultSet.getString("nomeProduto"),
 						resultSet.getInt("estoque"), resultSet.getInt("enchimentos"), resultSet.getInt("cortes"),
 						resultSet.getString("observacoes")));
 				tabelaProduto.setItems(ListaProdutos);
@@ -109,8 +113,8 @@ public class FinalizacaoController implements Initializable {
 
 	// CARREGA A TABELA COM AS INFORMAÇÕES DO BANCO E DEFINE AS ULTIMAS 3 COLUNAS
 	// COMO EDITAVEIS
-	private void loadDate() {
-		refreshTable();
+	private void carregarDados() {
+		atualizarTabela();
 
 		colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
 		colNomeProduto.setCellValueFactory(new PropertyValueFactory<>("nomeProduto"));
@@ -124,7 +128,7 @@ public class FinalizacaoController implements Initializable {
 	}
 
 	// CARREGA A COMBOBOX COM AS COLEÇÕES QUE VEM DO BANCO
-	private void setComboBoxDate() {
+	private void definirDadosDaComboBox() {
 		try {
 			query = "SELECT * FROM colecao";
 			resultSet = queryDB.selectQuery(query);
@@ -143,7 +147,7 @@ public class FinalizacaoController implements Initializable {
 	// EVENTO PARA CARREGAR OS DADOS DA TABELA DE ACORDO COM A COLEÇÃO SELECIONADA
 	// NA COMBOBOX
 	@FXML
-	private void setTableDataFromComboBox() {
+	private void definirTabelaPelaComboBox() {
 		ListaProdutos.clear();
 		try {
 			String nomeColecao = comboboxProduto.getSelectionModel().getSelectedItem();
@@ -157,7 +161,7 @@ public class FinalizacaoController implements Initializable {
 
 				while (resultSet.next()) {
 					ListaProdutos
-							.add(new Product(resultSet.getString("codigoProduto"), resultSet.getString("nomeProduto"),
+							.add(new Produto(resultSet.getString("codigoProduto"), resultSet.getString("nomeProduto"),
 									resultSet.getInt("estoque"), resultSet.getInt("enchimentos"),
 									resultSet.getInt("cortes"), resultSet.getString("observacoes")));
 				}
@@ -179,7 +183,7 @@ public class FinalizacaoController implements Initializable {
 
 	// CARREGA A TXTFIELD DE OBSERVAÇÕES DE ACORDO COM A LINHA SELECIONADA
 	@FXML
-	private void setObservacoesData() {
+	private void definirObservacoes() {
 		if (!tabelaProduto.getSelectionModel().getSelectedItems().isEmpty()) {
 			String codigoSelecionado = tabelaProduto.getSelectionModel().getSelectedItem().getCodigo();
 			try {
@@ -197,9 +201,9 @@ public class FinalizacaoController implements Initializable {
 
 	// SALVA A ALTERAÇÃO FEITA NA TXTFIELD DE OBSERVAÇÕES
 	@FXML
-	private void setOndEditObservacoes() {
+	private void definirObservacoesAoEditar() {
 		if (!tabelaProduto.getSelectionModel().getSelectedItems().isEmpty()) {
-			Product item = tabelaProduto.getSelectionModel().getSelectedItem();
+			Produto item = tabelaProduto.getSelectionModel().getSelectedItem();
 
 			// Obtendo os valores de todas as colunas na linha afetada
 			String codigoProduto = item.getCodigo();
@@ -209,29 +213,28 @@ public class FinalizacaoController implements Initializable {
 			int valorCortes = colCortes.getCellData(item);
 			String textoObservacoes = observacoes.getText();
 
-			ListaAlteracaoObservacoes.add(new Product(codigoProduto, nomeProduto, valorEmEstoque, valorEnchimentos,
+			ListaAlteracaoObservacoes.add(new Produto(codigoProduto, nomeProduto, valorEmEstoque, valorEnchimentos,
 					valorCortes, textoObservacoes));
-			System.out.println(ListaAlteracaoObservacoes.toString());
 		}
 	}
 
 	// TESTA TODAS AS COLUNAS EDITAVEIS PARA VERIFICAR SE OCORREU O EVENTO
 	@FXML
-	private void setOnEditCommitHandler() {
-		setColumnEditHandler(colEnchimentos);
-		setColumnEditHandler(colEmEstoque);
-		setColumnEditHandler(colCortes);
+	private void manipuladorDeCommit() {
+		manipuladorDeCommitPorColuna(colEnchimentos);
+		manipuladorDeCommitPorColuna(colEmEstoque);
+		manipuladorDeCommitPorColuna(colCortes);
 	}
 
 	// VERIFICA O EVENTO OCORRIDO NA COLUNA EDITADA E SALVA EM UMA LISTA DE ESPERA
 	// PARA SALVAR
 	// TRATAR EXCEÇÃO
-	private <T> void setColumnEditHandler(TableColumn<Product, T> coluna) {
-		coluna.setOnEditCommit(new EventHandler<CellEditEvent<Product, T>>() {
+	private <T> void manipuladorDeCommitPorColuna(TableColumn<Produto, T> coluna) {
+		coluna.setOnEditCommit(new EventHandler<CellEditEvent<Produto, T>>() {
 			@Override
-			public void handle(CellEditEvent<Product, T> event) {
+			public void handle(CellEditEvent<Produto, T> event) {
 
-				Product item = event.getRowValue();
+				Produto item = event.getRowValue();
 				// Obtendo os valores de todas as colunas na linha afetada
 				String codigoProduto = item.getCodigo();
 				String nomeProduto = item.getNomeProduto();
@@ -246,22 +249,19 @@ public class FinalizacaoController implements Initializable {
 					if (coluna == colEmEstoque) {
 
 						valorEmEstoque = (Integer) novoValor;
-						System.out.println("A coluna Em Estoque foi alterada para: " + valorEmEstoque);
-						ListaAlteracaoEstoque.add(new Product(codigoProduto, nomeProduto, valorEmEstoque,
+						ListaAlteracaoEstoque.add(new Produto(codigoProduto, nomeProduto, valorEmEstoque,
 								valorEnchimentos, valorCortes, textoObservacoes));
 
 					} else if (coluna == colEnchimentos) {
 
 						valorEnchimentos = (Integer) novoValor;
-						System.out.println("A coluna Enchimentos foi alterada para: " + valorEnchimentos);
-						ListaAlteracaoEnchimentos.add(new Product(codigoProduto, nomeProduto, valorEmEstoque,
+						ListaAlteracaoEnchimentos.add(new Produto(codigoProduto, nomeProduto, valorEmEstoque,
 								valorEnchimentos, valorCortes, textoObservacoes));
 
 					} else if (coluna == colCortes) {
 
 						valorCortes = (Integer) novoValor;
-						System.out.println("A coluna Cortes foi alterada para: " + valorCortes);
-						ListaAlteracaoCortes.add(new Product(codigoProduto, nomeProduto, valorEmEstoque,
+						ListaAlteracaoCortes.add(new Produto(codigoProduto, nomeProduto, valorEmEstoque,
 								valorEnchimentos, valorCortes, textoObservacoes));
 
 					}
@@ -272,7 +272,7 @@ public class FinalizacaoController implements Initializable {
 
 	// ENVIA UM ALERTA PERGUNTANDO SE REALMENTE DESEJA EFETUAR AS ALTERAÇÕES
 	@FXML
-	private void updateStock() {
+	private void atualizarEstoque() {
 		if (!ListaAlteracaoEstoque.isEmpty() || !ListaAlteracaoEnchimentos.isEmpty() || !ListaAlteracaoCortes.isEmpty()
 				|| !ListaAlteracaoObservacoes.isEmpty()) {
 			int response = Alerts.showConfirmationAlert("CONFIRMAR?", "DESEJA SALVAR TODAS AS ALTERAÇÕES FEITAS?");
@@ -286,7 +286,7 @@ public class FinalizacaoController implements Initializable {
 			case 2:
 				if (!ListaAlteracaoEstoque.isEmpty()) {
 					for (int i = 0; i < ListaAlteracaoEstoque.size(); i++) {
-						Product saveProduct = ListaAlteracaoEstoque.get(i);
+						Produto saveProduct = ListaAlteracaoEstoque.get(i);
 						String idProduto = saveProduct.getCodigo();
 						int estoque = saveProduct.getEstoque();
 
@@ -299,7 +299,7 @@ public class FinalizacaoController implements Initializable {
 				}
 				if (!ListaAlteracaoEnchimentos.isEmpty()) {
 					for (int i = 0; i < ListaAlteracaoEnchimentos.size(); i++) {
-						Product saveProduct = ListaAlteracaoEnchimentos.get(i);
+						Produto saveProduct = ListaAlteracaoEnchimentos.get(i);
 						String idProduto = saveProduct.getCodigo();
 						int enchimentos = saveProduct.getEnchimentos();
 
@@ -312,7 +312,7 @@ public class FinalizacaoController implements Initializable {
 				}
 				if (!ListaAlteracaoCortes.isEmpty()) {
 					for (int i = 0; i < ListaAlteracaoCortes.size(); i++) {
-						Product saveProduct = ListaAlteracaoCortes.get(i);
+						Produto saveProduct = ListaAlteracaoCortes.get(i);
 						String idProduto = saveProduct.getCodigo();
 						int cortes = saveProduct.getCortes();
 
@@ -324,7 +324,7 @@ public class FinalizacaoController implements Initializable {
 				}
 				if (!ListaAlteracaoObservacoes.isEmpty()) {
 					for (int i = 0; i < ListaAlteracaoObservacoes.size(); i++) {
-						Product saveProduct = ListaAlteracaoObservacoes.get(i);
+						Produto saveProduct = ListaAlteracaoObservacoes.get(i);
 						String idProduto = saveProduct.getCodigo();
 						String observacao = saveProduct.getObservacoes();
 
@@ -355,18 +355,20 @@ public class FinalizacaoController implements Initializable {
 	@FXML
 	private TextField quantidadeProdutoDiario;
 	@FXML
-	private TableView<ProductDiario> tabelaDiario;
+	private TableView<ProdutoDiario> tabelaDiario;
 	@FXML
-	private TableColumn<Product, String> colNomeProdutoDiario;
+	private TableColumn<Produto, String> colNomeProdutoDiario;
 	@FXML
-	private TableColumn<Product, Integer> colQuantidadeDiario;
+	private TableColumn<Produto, Integer> colQuantidadeDiario;
 	@FXML
 	private Button botaoSalvar;
+	@FXML
+	private Button botaoDescartar;
 
-	ObservableList<ProductDiario> ListaDiarioTotal = FXCollections.observableArrayList();
-	ObservableList<ProductDiario> ListaDiario = FXCollections.observableArrayList();
+	ObservableList<ProdutoDiario> ListaDiarioTotal = FXCollections.observableArrayList();
+	ObservableList<ProdutoDiario> ListaDiario = FXCollections.observableArrayList();
 
-	private void refreshTableDiario() {
+	private void atualizarTabelaDiario() {
 		colNomeProdutoDiario.setCellValueFactory(new PropertyValueFactory<>("product"));
 		colQuantidadeDiario.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
@@ -378,14 +380,14 @@ public class FinalizacaoController implements Initializable {
 		}
 	}
 
-	private void alertEmptyValues() {
+	private void alertaCampoVazio() {
 		Alerts.showAlert("CAMPO VAZIO", null, "CERTIFIQUE DE PREENCHER TODOS OS CAMPOS!", AlertType.INFORMATION);
 	}
 
 	@FXML
-	private void insertOnActionDiario() {
+	private void eventoInserirDiario() {
 		if (produtoDiario.getText().isEmpty() || quantidadeProdutoDiario.getText().isEmpty()) {
-			alertEmptyValues();
+			alertaCampoVazio();
 		} else {
 			Integer posicao = null;
 			boolean has = false;
@@ -397,35 +399,58 @@ public class FinalizacaoController implements Initializable {
 			}
 			if (has == false) {
 				ListaDiarioTotal.add(
-						new ProductDiario(produtoDiario.getText().toUpperCase(), quantidadeProdutoDiario.getText()));
+						new ProdutoDiario(produtoDiario.getText().toUpperCase(), quantidadeProdutoDiario.getText()));
 			} else {
 				ListaDiarioTotal.get(posicao).setQuantity(quantidadeProdutoDiario.getText());
 			}
 		}
-		refreshTableDiario();
+		atualizarTabelaDiario();
 	}
 
 	@FXML
-	private void onButtonDiarioPressed() {
-		int response = Alerts.showConfirmationAlert("SALVAR DIARIO",
-				"DESEJA SALVAR TODOS OS ITENS NA DATA DE HOJE " + dtf.format(LocalDate.now()) + "?");
-		switch (response) {
-		case 1:
-			ListaDiarioTotal.clear();
-			break;
-		case 2:
+	private void botaoDiarioPressionado() {
+		if (!produtoDiario.getText().isEmpty() && !quantidadeProdutoDiario.getText().isEmpty()) {
+			int response = Alerts.showConfirmationAlert("SALVAR DIARIO",
+					"DESEJA SALVAR TODOS OS ITENS NA DATA DE HOJE " + dtf.format(LocalDate.now()) + "?");
+			switch (response) {
+			case 1:
+				ListaDiarioTotal.clear();
+				break;
+			case 2:
+				LocalDate data = LocalDate.now();
+				String mes = LocalDate.now().getMonth().toString();
+				mes = historicoRepo.traduct(mes);
+				int ano = LocalDate.now().getYear();
 
-			LocalDate data = LocalDate.now();
-			String mes = LocalDate.now().getMonth().toString();
-			mes = historicoRepo.traduct(mes);
-			int ano = LocalDate.now().getYear();
-
-			historico = new Historico(ListaDiarioTotal, dtf.format(data).toString(), mes, ano);
-			historicoRepo.insertQuery(historico);
-			break;
+				historico = new Historico(ListaDiarioTotal, dtf.format(data).toString(), mes, ano);
+				historicoRepo.insertQuery(historico);
+				break;
+			}
+		} else {
+			Alerts.showAlert("CAMPO VAZIO", null,
+					"CERTIFIQUE-SE DE PREENCHER TODOS OS CAMPOS ANTES DE EXECUTAR A BUSCA", AlertType.INFORMATION);
 		}
 	}
 
+	@FXML
+	private void botaoDescartarPressionado() {
+		if (tabelaDiario.getSelectionModel().getSelectedItem() != null) {
+			produtoDiario.setText(tabelaDiario.getSelectionModel().getSelectedItem().getProduct());
+			quantidadeProdutoDiario.setText(tabelaDiario.getSelectionModel().getSelectedItem().getQuantity());
+
+			if (!produtoDiario.getText().isEmpty() && !quantidadeProdutoDiario.getText().isEmpty()) {
+				for (int i = ListaDiarioTotal.size() - 1; i >= 0; i--) {
+					if (ListaDiarioTotal.get(i).getProduct().equals(produtoDiario.getText())) {
+						ListaDiarioTotal.remove(i);
+						break;
+					}
+				}
+			}
+			produtoDiario.setText("");
+			quantidadeProdutoDiario.setText("");
+			atualizarTabelaDiario();
+		}
+	}
 	/*
 	 * 
 	 * PÁGINA DE HISTÓRICO
@@ -433,64 +458,63 @@ public class FinalizacaoController implements Initializable {
 	 */
 
 	@FXML
-	private ComboBox<String> Months;
+	private ComboBox<String> Meses;
 	@FXML
-	private ComboBox<Integer> Years;
+	private ComboBox<Integer> Anos;
 	@FXML
-	private Button buttonBuscar;
+	private Button botaoBuscar;
 	@FXML
-	private TableView<ProductDiario> TableHistorico;
+	private TableView<ProdutoDiario> TabelaHistorico;
 	@FXML
-	private TableColumn<ProductDiario, String> colProdutoHistorico;
+	private TableColumn<ProdutoDiario, String> colProdutoHistorico;
 	@FXML
-	private TableColumn<ProductDiario, Integer> colquantidadeProdutoHistorico;
-	
-	ProductDiario productDiario;
-	ObservableList<String> AllMonths = FXCollections.observableArrayList();
-	ObservableList<Integer> AllYears = FXCollections.observableArrayList();
-	ObservableList<ProductDiario> listaHistorico = FXCollections.observableArrayList();
-	
-	public void startComboBoxMonths() {
-		AllMonths.add("Janeiro");
-		AllMonths.add("Fevereiro");
-		AllMonths.add("Março");
-		AllMonths.add("Abril");
-		AllMonths.add("Maio");
-		AllMonths.add("Junho");
-		AllMonths.add("Julho");
-		AllMonths.add("Agosto");
-		AllMonths.add("Setembro");
-		AllMonths.add("Outubro");
-		AllMonths.add("Novembro");
-		AllMonths.add("Dezembro");
+	private TableColumn<ProdutoDiario, Integer> colquantidadeProdutoHistorico;
 
-		Months.setItems(AllMonths);
+	ProdutoDiario productDiario;
+	ObservableList<String> TodosMeses = FXCollections.observableArrayList();
+	ObservableList<Integer> TodosAnos = FXCollections.observableArrayList();
+	ObservableList<ProdutoDiario> listaHistorico = FXCollections.observableArrayList();
+
+	public void iniciarComboBoxMeses() {
+		TodosMeses.add("Janeiro");
+		TodosMeses.add("Fevereiro");
+		TodosMeses.add("Março");
+		TodosMeses.add("Abril");
+		TodosMeses.add("Maio");
+		TodosMeses.add("Junho");
+		TodosMeses.add("Julho");
+		TodosMeses.add("Agosto");
+		TodosMeses.add("Setembro");
+		TodosMeses.add("Outubro");
+		TodosMeses.add("Novembro");
+		TodosMeses.add("Dezembro");
+
+		Meses.setItems(TodosMeses);
 	}
-	
-	public void startComboBoxYears() {
+
+	public void iniciarComboBoxAnos() {
 		query = "SELECT * FROM historico";
 		try {
 			resultSet = historicoRepo.selectQuery(query);
-			
-			while(resultSet.next()) {					
+
+			while (resultSet.next()) {
 				int ano = resultSet.getInt("ano");
-				if(!AllYears.contains(ano)) {
-					AllYears.add(ano);
-				}				
+				if (!TodosAnos.contains(ano)) {
+					TodosAnos.add(ano);
+				}
 			}
-			Years.setItems(AllYears);
-		}
-		catch(SQLException e) {
+			Anos.setItems(TodosAnos);
+		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 	}
-	
+
 	@FXML
-	private void loadDataHistorico() {
-		if (!Months.getSelectionModel().getSelectedItem().isEmpty()
-				&& Years.getSelectionModel().getSelectedItem() != null) {
-			query = "SELECT * FROM historico WHERE mes = '" + Months.getSelectionModel().getSelectedItem().toUpperCase()
-					+ "' AND ano = " + Years.getSelectionModel().getSelectedItem();
+	private void carregarDadosHistorico() {
+		if (!Meses.getSelectionModel().getSelectedItem().isEmpty()
+				&& Anos.getSelectionModel().getSelectedItem() != null) {
+			query = "SELECT * FROM historico WHERE mes = '" + Meses.getSelectionModel().getSelectedItem().toUpperCase()
+					+ "' AND ano = " + Anos.getSelectionModel().getSelectedItem();
 			try {
 				resultSet = historicoRepo.selectQuery(query);
 
@@ -499,33 +523,32 @@ public class FinalizacaoController implements Initializable {
 
 				listaHistorico.clear();
 				while (resultSet.next()) {
-				    String nomeProduto = resultSet.getString("nomeProduto");
-				    Integer quantidade = resultSet.getInt("quantidade");
-				    String quantidadeFormat = quantidade.toString();
+					String nomeProduto = resultSet.getString("nomeProduto");
+					Integer quantidade = resultSet.getInt("quantidade");
+					String quantidadeFormat = quantidade.toString();
 
-				    boolean produtoEncontrado = false;
+					boolean produtoEncontrado = false;
 
-				    for (int i = 0; i < listaHistorico.size(); i++) {
-				        if (listaHistorico.get(i).getProduct().equals(nomeProduto)) {
-				            String quantidadeCarregada = listaHistorico.get(i).getQuantity();
-				            Integer formatter = Integer.parseInt(quantidadeCarregada);
-				            Integer quantidadeTotal = formatter + quantidade;
-				            String quantidadeAtualizada = quantidadeTotal.toString();
+					for (int i = 0; i < listaHistorico.size(); i++) {
+						if (listaHistorico.get(i).getProduct().equals(nomeProduto)) {
+							String quantidadeCarregada = listaHistorico.get(i).getQuantity();
+							Integer formatter = Integer.parseInt(quantidadeCarregada);
+							Integer quantidadeTotal = formatter + quantidade;
+							String quantidadeAtualizada = quantidadeTotal.toString();
 
-				            productDiario = new ProductDiario(nomeProduto, quantidadeAtualizada);
-				            listaHistorico.set(i, productDiario); 
-				            produtoEncontrado = true;
-				            break;
-				        }
-				    }
+							productDiario = new ProdutoDiario(nomeProduto, quantidadeAtualizada);
+							listaHistorico.set(i, productDiario);
+							produtoEncontrado = true;
+							break;
+						}
+					}
 
-				    if (!produtoEncontrado) {
-				        productDiario = new ProductDiario(nomeProduto, quantidadeFormat);
-				        listaHistorico.add(productDiario);
-				    }
+					if (!produtoEncontrado) {
+						productDiario = new ProdutoDiario(nomeProduto, quantidadeFormat);
+						listaHistorico.add(productDiario);
+					}
 				}
-				System.out.println("oi");
-				TableHistorico.setItems(listaHistorico);
+				TabelaHistorico.setItems(listaHistorico);
 			} catch (SQLException e) {
 				System.out.println(e.getMessage());
 			}

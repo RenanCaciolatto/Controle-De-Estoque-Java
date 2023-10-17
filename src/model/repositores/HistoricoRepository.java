@@ -10,7 +10,7 @@ import gui.util.Alerts;
 import javafx.scene.control.Alert.AlertType;
 import model.entities.Historico;
 
-public class HistoricoRepository {
+public class HistoricoRepository implements Repositorio{
 	Connection connection = null;
 	PreparedStatement preparedStatement = null;
 	ResultSet resultSet = null;
@@ -60,22 +60,6 @@ public class HistoricoRepository {
 	            break;
 	    }
 	    return traductedMonth.toUpperCase();
-	}
-
-	public ResultSet selectQuery(String querySelect) {
-		try {
-			connection = DBConnection.Conexao();
-			query = querySelect;
-			preparedStatement = connection.prepareStatement(query);
-			resultSet = preparedStatement.executeQuery();
-
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
-
-		return resultSet;
 	}
 	
 	public void insertQuery(Historico historico) {

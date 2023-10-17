@@ -1,11 +1,11 @@
 package model.entities;
 
-public class Collection {
+public class Colecao {
 	
 	private String codigoColecao;
 	private String nome;
 	
-	public Collection(String codigoColecao, String nome) {
+	public Colecao(String codigoColecao, String nome) {
 		this.codigoColecao = codigoColecao;
 		this.nome = nome;
 	}
