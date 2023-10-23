@@ -13,7 +13,7 @@ public interface Repositorio {
 		ResultSet resultSet = null;
 		
 		try {
-			Connection connection = DBConnection.Conexao();
+			Connection connection = DBConnection.getConnection();
 			PreparedStatement preparedStatement = connection.prepareStatement(querySelect);
 			resultSet = preparedStatement.executeQuery();
 
@@ -27,7 +27,7 @@ public interface Repositorio {
 	}
 	
 	public default void updateQuery(String query) {		
-		Connection connection = DBConnection.Conexao();
+		Connection connection = DBConnection.getConnection();
 		
 		try {
 			PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -36,12 +36,6 @@ public interface Repositorio {
 			System.out.println(e.getMessage());
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
-		} finally {
-			try {
-				connection.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}		 
 	}
 }

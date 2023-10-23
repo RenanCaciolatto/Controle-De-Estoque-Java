@@ -22,7 +22,7 @@ public class HistoricoRepository implements Repositorio{
 	        case "january":
 	            traductedMonth = "Janeiro";
 	            break;
-	        case "jebruary":
+	        case "february":
 	            traductedMonth = "Fevereiro";
 	            break;
 	        case "march":
@@ -66,7 +66,7 @@ public class HistoricoRepository implements Repositorio{
 		for (int i = 0; i < historico.getLista().size(); i++) {
 			query = "INSERT INTO historico(nomeProduto, quantidade, dataAlteracao, mes, ano) VALUES(?,?,?,?,?)";
 			try {
-			    connection = DBConnection.Conexao();
+			    connection = DBConnection.getConnection();
 			    preparedStatement = connection.prepareStatement(query);
 
 			    int quantidade = Integer.parseInt(historico.getLista().get(i).getQuantity());
@@ -80,17 +80,6 @@ public class HistoricoRepository implements Repositorio{
 			    preparedStatement.executeUpdate();
 			} catch (SQLException e) {
 			    Alerts.showAlert("ERROR", null, "ERRO DESCONHECIDO: "+ e.getMessage(), AlertType.ERROR);
-			} finally {
-			   try {
-			        if (preparedStatement != null) {
-			            preparedStatement.close();
-			        }
-			        if (connection != null) {
-			            connection.close();
-			        }
-			    } catch (SQLException e) {
-			        System.out.println(e.getMessage());
-			    }
 			}			
 		}
 	}

@@ -52,6 +52,9 @@ public class FinalizacaoController implements Initializable {
 	@FXML
 	private TextArea observacoes;
 
+	public FinalizacaoController() {
+	}
+	
 	ProductRepository queryDB = new ProductRepository();
 	String query = null;
 	Connection connection = null;
@@ -272,7 +275,7 @@ public class FinalizacaoController implements Initializable {
 
 	// ENVIA UM ALERTA PERGUNTANDO SE REALMENTE DESEJA EFETUAR AS ALTERAÇÕES
 	@FXML
-	private void atualizarEstoque() {
+	private int atualizarEstoque() {
 		if (!ListaAlteracaoEstoque.isEmpty() || !ListaAlteracaoEnchimentos.isEmpty() || !ListaAlteracaoCortes.isEmpty()
 				|| !ListaAlteracaoObservacoes.isEmpty()) {
 			int response = Alerts.showConfirmationAlert("CONFIRMAR?", "DESEJA SALVAR TODAS AS ALTERAÇÕES FEITAS?");
@@ -337,7 +340,9 @@ public class FinalizacaoController implements Initializable {
 				}
 				break;
 			}
+			return response;
 		}
+		return 0;
 	}
 
 	/*
@@ -409,7 +414,7 @@ public class FinalizacaoController implements Initializable {
 
 	@FXML
 	private void botaoDiarioPressionado() {
-		if (!produtoDiario.getText().isEmpty() && !quantidadeProdutoDiario.getText().isEmpty()) {
+		if (!tabelaDiario.getItems().isEmpty()) {
 			int response = Alerts.showConfirmationAlert("SALVAR DIARIO",
 					"DESEJA SALVAR TODOS OS ITENS NA DATA DE HOJE " + dtf.format(LocalDate.now()) + "?");
 			switch (response) {
@@ -556,5 +561,18 @@ public class FinalizacaoController implements Initializable {
 			Alerts.showAlert("CAMPO VAZIO", null,
 					"CERTIFIQUE-SE DE PREENCHER TODOS OS CAMPOS ANTES DE EXECUTAR A BUSCA", AlertType.INFORMATION);
 		}
+	}
+	
+	public void OnCloseRequest() {
+		if(!ListaDiario.isEmpty() || !ListaDiarioTotal.isEmpty()) {
+			botaoDiarioPressionado();
+			System.out.println("Executado!");
+		}
+		System.out.println(ListaAlteracaoEstoque.toString());
+		if (!ListaAlteracaoEstoque.isEmpty() || !ListaAlteracaoEnchimentos.isEmpty() || !ListaAlteracaoCortes.isEmpty()
+				|| !ListaAlteracaoObservacoes.isEmpty()) {
+			atualizarEstoque();
+		}
+		
 	}
 }

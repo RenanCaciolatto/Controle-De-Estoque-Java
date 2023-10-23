@@ -1,26 +1,38 @@
 package connection;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class DBConnection {
-	public static Connection Conexao() {		
-		Connection conn = null;
-		String url = "jdbc:mysql://localhost:3306/tcc_fofuchos";
-		String user = "admin";
-		String password = "P@nda100";
-		
-		try{
-			conn = DriverManager.getConnection(url, user, password);
+
+	private static Connection conn = null;
+	
+	public static Connection getConnection() {
+		if (conn == null) {
+			try {
+				Properties props = loadProperties();
+				String url = props.getProperty("dburl");
+				conn = DriverManager.getConnection(url, props);
+			}
+			catch (SQLException e) {
+				throw new DbException(e.getMessage());
+			}
 		}
-		catch(SQLException erro) {
-			System.out.println(erro);
-		}
-		catch(Exception e) {
-			System.out.println(e);
-		}
-		
 		return conn;
+	}
+	
+	private static Properties loadProperties() {
+		try (FileInputStream fs = new FileInputStream("db.properties")) {
+			Properties props = new Properties();
+			props.load(fs);
+			return props;
+		}
+		catch (IOException e) {
+			throw new DbException(e.getMessage());
+		}
 	}
 }
