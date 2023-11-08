@@ -1,11 +1,14 @@
 package model.entities;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import javafx.collections.ObservableList;
 
-public class Historico{
+public class Historico implements Serializable{
+	private static final long serialVersionUID = 1L;
+	
 	List <ProdutoDiario> lista = new ArrayList<>();
 	String date;
 	String month;

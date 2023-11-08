@@ -2,16 +2,26 @@ package model.entities;
 
 public class ProdutoDiario {
 	private String product;
-	private String quantity;	
+	private String quantity;
+	private String dataAlteracao;
 	
 	public ProdutoDiario(String product) {		
 	}
 	
-	public ProdutoDiario(String product, String quantity) {
+	public ProdutoDiario(String product, String quantity, String dataAlteracao) {
 		this.product = product;
 		this.quantity = quantity;
+		this.dataAlteracao = dataAlteracao;
 	}
 	
+	public String getDataAlteracao() {
+		return dataAlteracao;
+	}
+
+	public void setDataAlteracao(String dataAlteracao) {
+		this.dataAlteracao = dataAlteracao;
+	}
+
 	public String getProduct() {
 		return product;
 	}
@@ -29,8 +39,4 @@ public class ProdutoDiario {
 		produto.setQuantity(produto.getQuantity() + quantidade);
 	}
 	
-	@Override
-	public String toString() {		
-		return "Produto: "+product+"; Quantidade: "+quantity;
-	}
 }

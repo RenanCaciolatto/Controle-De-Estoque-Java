@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #0a66b5;" stylesheets="@../application/application.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.FinalizacaoController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #0a66b5;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.FinalizacaoController">
    <children>
       <TabPane prefHeight="600.0" prefWidth="800.0" style="-fx-border-color: black;" tabClosingPolicy="UNAVAILABLE">
         <tabs>
@@ -64,11 +64,11 @@
                      </children></AnchorPane>
                </content>
             </Tab>
-          <Tab onCloseRequest="#atualizarEstoque" onSelectionChanged="#atualizarEstoque" style="-fx-background-color: #e4e5e6; -fx-border-color: black; -fx-border-radius: 4;" text="Estoque">
+          <Tab style="-fx-background-color: #e4e5e6; -fx-border-color: black; -fx-border-radius: 4;" text="Estoque">
                <content>
-                  <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="571.0" prefWidth="800.0" style="-fx-background-color: #bac6d5;" stylesheets="@../application/application.css">
+                  <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="571.0" prefWidth="800.0" style="-fx-background-color: #bac6d5;">
                      <children>
-                        <ComboBox fx:id="comboboxProduto" layoutX="32.0" layoutY="30.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#definirTabelaPelaComboBox" onMouseClicked="#atualizarEstoque" prefHeight="29.0" prefWidth="326.0" promptText="COLEÇÕES" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white;">
+                        <ComboBox fx:id="comboboxProduto" layoutX="32.0" layoutY="30.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#definirTabelaPelaComboBox" prefHeight="29.0" prefWidth="326.0" promptText="COLEÇÕES" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white;">
                            <cursor>
                               <Cursor fx:constant="DEFAULT" />
                            </cursor></ComboBox>
@@ -79,7 +79,7 @@
                         </Label>
                         <TextArea fx:id="observacoes" layoutX="32.0" layoutY="484.0" onMouseExited="#definirObservacoesAoEditar" prefHeight="63.0" prefWidth="324.0" style="-fx-border-color: black; -fx-border-radius: 3;" />
                         <Button cache="true" cacheHint="SPEED" depthTest="DISABLE" layoutX="679.0" layoutY="516.0" mnemonicParsing="false" onAction="#atualizarEstoque" prefHeight="33.0" prefWidth="83.0" style="-fx-border-color: black; -fx-background-color: #0a66b5; -fx-text-fill: white; -fx-border-radius: 3;" text="SALVAR" />
-                        <ScrollPane hbarPolicy="NEVER" layoutX="32.0" layoutY="82.0" prefHeight="369.0" prefWidth="730.0" style="-fx-border-color: black;" stylesheets="@../application/application.css">
+                        <ScrollPane hbarPolicy="NEVER" layoutX="32.0" layoutY="82.0" prefHeight="369.0" prefWidth="730.0" style="-fx-border-color: black;">
                            <content>
                               <TableView fx:id="tabelaProduto" editable="true" onMouseClicked="#definirObservacoes" prefHeight="369.0" prefWidth="730.0">
                                  <columns>
@@ -100,19 +100,21 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #bac6d5;">
                      <children>
-                        <ScrollPane hbarPolicy="NEVER" layoutX="32.0" layoutY="82.0" prefHeight="461.0" prefWidth="744.0" style="-fx-border-color: black;" stylesheets="@../application/application.css">
+                        <ScrollPane hbarPolicy="NEVER" layoutX="32.0" layoutY="82.0" prefHeight="461.0" prefWidth="744.0" style="-fx-border-color: black;">
                            <content>
                               <TableView fx:id="TabelaHistorico" prefHeight="460.0" prefWidth="743.0">
                                 <columns>
-                                  <TableColumn fx:id="colProdutoHistorico" prefWidth="565.0" style="-fx-border-color: black;" text="NOME DO PRODUTO" />
-                                  <TableColumn fx:id="colquantidadeProdutoHistorico" prefWidth="161.0" style="-fx-border-color: black;" text="QUANTIDADE" />
+                                    <TableColumn fx:id="colDiaHistorico" minWidth="0.0" prefWidth="90.0" style="-fx-border-color: black;" text="DIA" />
+                                  <TableColumn fx:id="colProdutoHistorico" prefWidth="525.0" style="-fx-border-color: black;" text="NOME DO PRODUTO" />
+                                  <TableColumn fx:id="colquantidadeProdutoHistorico" minWidth="0.0" prefWidth="111.0" style="-fx-border-color: black;" text="QUANTIDADE" />
                                 </columns>
                               </TableView>
                            </content>
                         </ScrollPane>
-                        <ComboBox fx:id="Meses" layoutX="32.0" layoutY="30.0" prefHeight="28.0" prefWidth="194.0" promptText="MÊS" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white;" visibleRowCount="3" />
-                        <ComboBox fx:id="Anos" layoutX="243.0" layoutY="30.0" prefHeight="28.0" prefWidth="80.0" promptText="ANO" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white;" />
-                        <Button fx:id="botaoBuscar" layoutX="340.0" layoutY="30.0" mnemonicParsing="false" onAction="#carregarDadosHistorico" prefHeight="29.0" prefWidth="81.0" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: #0a66b5; -fx-text-fill: white;" text="BUSCAR" />
+                        <ComboBox fx:id="Meses" layoutX="132.0" layoutY="31.0" prefHeight="28.0" prefWidth="194.0" promptText="MÊS" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white;" visibleRowCount="3" />
+                        <ComboBox fx:id="Anos" layoutX="342.0" layoutY="31.0" prefHeight="28.0" prefWidth="80.0" promptText="ANO" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white;" />
+                        <Button fx:id="botaoBuscar" layoutX="444.0" layoutY="30.0" mnemonicParsing="false" onAction="#carregarDadosHistorico" prefHeight="29.0" prefWidth="81.0" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: #0a66b5; -fx-text-fill: white;" text="BUSCAR" />
+                        <ComboBox fx:id="Dias" layoutX="32.0" layoutY="31.0" prefHeight="28.0" prefWidth="80.0" promptText="DIA" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white;" />
                      </children></AnchorPane>
             </content>
           </Tab>

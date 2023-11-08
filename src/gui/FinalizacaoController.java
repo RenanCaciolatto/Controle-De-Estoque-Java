@@ -6,10 +6,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import java.util.Timer;
+import java.util.TimerTask;
 import gui.util.Alerts;
 import gui.util.Constraints;
 import javafx.collections.FXCollections;
@@ -31,8 +32,9 @@ import javafx.util.converter.IntegerStringConverter;
 import model.entities.Historico;
 import model.entities.Produto;
 import model.entities.ProdutoDiario;
-import model.repositores.HistoricoRepository;
-import model.repositores.ProductRepository;
+import model.exceptions.DataException;
+import model.repositores.HistoricoDAO;
+import model.repositores.ProductDAO;
 
 public class FinalizacaoController implements Initializable {
 	@FXML
@@ -51,11 +53,10 @@ public class FinalizacaoController implements Initializable {
 	private TableColumn<Produto, Integer> colCortes;
 	@FXML
 	private TextArea observacoes;
-
-	public FinalizacaoController() {
-	}
 	
-	ProductRepository queryDB = new ProductRepository();
+	public FinalizacaoController() {}
+	
+	ProductDAO queryDB = new ProductDAO();
 	String query = null;
 	Connection connection = null;
 	PreparedStatement preparedStatement = null;
@@ -64,15 +65,13 @@ public class FinalizacaoController implements Initializable {
 
 	ObservableList<Produto> ListaProdutos = FXCollections.observableArrayList();
 	ObservableList<String> ListaColecao = FXCollections.observableArrayList();
-	ObservableList<Produto> ListaAlteracaoEstoque = FXCollections.observableArrayList();
-	ObservableList<Produto> ListaAlteracaoEnchimentos = FXCollections.observableArrayList();
-	ObservableList<Produto> ListaAlteracaoCortes = FXCollections.observableArrayList();
-	ObservableList<Produto> ListaAlteracaoObservacoes = FXCollections.observableArrayList();
 
-	// COMANDOS QUE SERÃO EXECUTADOS ASSIM QUE EXECUTAR O PROGRAMA
+	List<String> listaAlteracoes = new ArrayList<>();
+	
 	@Override
-	public void initialize(java.net.URL arg0, ResourceBundle arg1) {
+	public void initialize(java.net.URL url, ResourceBundle rb) {
 		// TELA DIÁRIO
+		atualizarTabelaDiario();
 		Constraints.setTextFieldInteger(quantidadeProdutoDiario);
 		tabelaDiario.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
 			if (newSelection != null && newSelection.getProduct() != null && newSelection.getQuantity() != null) {
@@ -92,8 +91,16 @@ public class FinalizacaoController implements Initializable {
 		manipuladorDeCommit();
 
 		// TELA HISTORICO
+		iniciarComboBoxDias();
 		iniciarComboBoxMeses();
 		iniciarComboBoxAnos();
+		
+		// SALVAR AUTOMATICO
+		try {
+			salvamentoAutomatico();
+		}
+		catch(DataException e) {
+		}
 	}
 
 	// CARREGA A LISTA COM TODOS OS PRODUTOS QUE VIER DO BANCO
@@ -110,7 +117,7 @@ public class FinalizacaoController implements Initializable {
 				tabelaProduto.setItems(ListaProdutos);
 			}
 		} catch (SQLException e) {
-			Logger.getLogger(FinalizacaoController.class.getName()).log(Level.SEVERE, null, e);
+			Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
 		}
 	}
 
@@ -124,10 +131,14 @@ public class FinalizacaoController implements Initializable {
 		colEmEstoque.setCellValueFactory(new PropertyValueFactory<>("estoque"));
 		colEnchimentos.setCellValueFactory(new PropertyValueFactory<>("enchimentos"));
 		colCortes.setCellValueFactory(new PropertyValueFactory<>("cortes"));
-
-		colEmEstoque.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-		colEnchimentos.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-		colCortes.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+		
+		try {
+			colEmEstoque.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+			colEnchimentos.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+			colCortes.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+		} catch (NumberFormatException e) {
+			Alerts.showAlert("TIPO INCOMPATÍVEL", null, "ERRO: O CONTEÚDO DA TABELA DEVE SER UM NÚMERO INTEIRO!!\nTIPO DE ERRO: "+e.getMessage(), AlertType.ERROR);
+		}
 	}
 
 	// CARREGA A COMBOBOX COM AS COLEÇÕES QUE VEM DO BANCO
@@ -141,9 +152,9 @@ public class FinalizacaoController implements Initializable {
 			}
 			comboboxProduto.setItems(ListaColecao);
 		} catch (SQLException e) {
-			System.out.println(e);
+			Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
 		} catch (Exception e) {
-			System.out.println(e);
+			Alerts.showAlert("ERRO!!", null, "ERRO DESCONHECIDO, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
 		}
 	}
 
@@ -177,9 +188,9 @@ public class FinalizacaoController implements Initializable {
 
 			tabelaProduto.setItems(ListaProdutos);
 		} catch (SQLException e) {
-			System.out.println(e);
+			Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
 		} catch (Exception e) {
-			System.out.println(e);
+			Alerts.showAlert("ERRO!!", null, "ERRO DESCONHECIDO, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
 		}
 
 	}
@@ -197,7 +208,7 @@ public class FinalizacaoController implements Initializable {
 					observacoes.setText(observacoesBanco);
 				}
 			} catch (SQLException e) {
-				System.out.println(e.getMessage());
+				Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
 			}
 		}
 	}
@@ -210,28 +221,24 @@ public class FinalizacaoController implements Initializable {
 
 			// Obtendo os valores de todas as colunas na linha afetada
 			String codigoProduto = item.getCodigo();
-			String nomeProduto = item.getNomeProduto();
-			int valorEmEstoque = colEmEstoque.getCellData(item);
-			int valorEnchimentos = colEnchimentos.getCellData(item);
-			int valorCortes = colCortes.getCellData(item);
 			String textoObservacoes = observacoes.getText();
 
-			ListaAlteracaoObservacoes.add(new Produto(codigoProduto, nomeProduto, valorEmEstoque, valorEnchimentos,
-					valorCortes, textoObservacoes));
+			query = "UPDATE produtos SET observacoes = '" + textoObservacoes + "' WHERE codigoProduto = '"
+					+ codigoProduto + "'";
+			listaAlteracoes.add(query);	
 		}
 	}
 
 	// TESTA TODAS AS COLUNAS EDITAVEIS PARA VERIFICAR SE OCORREU O EVENTO
 	@FXML
 	private void manipuladorDeCommit() {
-		manipuladorDeCommitPorColuna(colEnchimentos);
-		manipuladorDeCommitPorColuna(colEmEstoque);
-		manipuladorDeCommitPorColuna(colCortes);
+	    manipuladorDeCommitPorColuna(colEnchimentos);
+	    manipuladorDeCommitPorColuna(colEmEstoque);
+	    manipuladorDeCommitPorColuna(colCortes);
 	}
 
 	// VERIFICA O EVENTO OCORRIDO NA COLUNA EDITADA E SALVA EM UMA LISTA DE ESPERA
 	// PARA SALVAR
-	// TRATAR EXCEÇÃO
 	private <T> void manipuladorDeCommitPorColuna(TableColumn<Produto, T> coluna) {
 		coluna.setOnEditCommit(new EventHandler<CellEditEvent<Produto, T>>() {
 			@Override
@@ -240,35 +247,34 @@ public class FinalizacaoController implements Initializable {
 				Produto item = event.getRowValue();
 				// Obtendo os valores de todas as colunas na linha afetada
 				String codigoProduto = item.getCodigo();
-				String nomeProduto = item.getNomeProduto();
 				int valorEmEstoque = colEmEstoque.getCellData(item);
 				int valorEnchimentos = colEnchimentos.getCellData(item);
 				int valorCortes = colCortes.getCellData(item);
-				String textoObservacoes = observacoes.getText();
-
+				
 				T novoValor = event.getNewValue();
 				if (novoValor instanceof Integer) {
 					// Descobrindo qual coluna foi alterada
 					if (coluna == colEmEstoque) {
-
 						valorEmEstoque = (Integer) novoValor;
-						ListaAlteracaoEstoque.add(new Produto(codigoProduto, nomeProduto, valorEmEstoque,
-								valorEnchimentos, valorCortes, textoObservacoes));
+						
+						query = "UPDATE produtos SET estoque = " + valorEmEstoque + " WHERE codigoProduto = '" + codigoProduto
+								+ "'";
+						listaAlteracoes.add(query);
 
 					} else if (coluna == colEnchimentos) {
-
 						valorEnchimentos = (Integer) novoValor;
-						ListaAlteracaoEnchimentos.add(new Produto(codigoProduto, nomeProduto, valorEmEstoque,
-								valorEnchimentos, valorCortes, textoObservacoes));
+						
+						query = "UPDATE produtos SET enchimentos = " + valorEnchimentos + " WHERE codigoProduto = '" + codigoProduto + "'";
+						listaAlteracoes.add(query);
 
 					} else if (coluna == colCortes) {
-
 						valorCortes = (Integer) novoValor;
-						ListaAlteracaoCortes.add(new Produto(codigoProduto, nomeProduto, valorEmEstoque,
-								valorEnchimentos, valorCortes, textoObservacoes));
-
+						
+						query = "UPDATE produtos SET cortes = " + valorCortes + " WHERE codigoProduto = '" + codigoProduto + "'";						
+						listaAlteracoes.add(query);
 					}
 				}
+				
 			}
 		});
 	}
@@ -276,72 +282,9 @@ public class FinalizacaoController implements Initializable {
 	// ENVIA UM ALERTA PERGUNTANDO SE REALMENTE DESEJA EFETUAR AS ALTERAÇÕES
 	@FXML
 	private int atualizarEstoque() {
-		if (!ListaAlteracaoEstoque.isEmpty() || !ListaAlteracaoEnchimentos.isEmpty() || !ListaAlteracaoCortes.isEmpty()
-				|| !ListaAlteracaoObservacoes.isEmpty()) {
-			int response = Alerts.showConfirmationAlert("CONFIRMAR?", "DESEJA SALVAR TODAS AS ALTERAÇÕES FEITAS?");
-			switch (response) {
-			case 1:
-				ListaAlteracaoEstoque.clear();
-				ListaAlteracaoEnchimentos.clear();
-				ListaAlteracaoCortes.clear();
-				ListaAlteracaoObservacoes.clear();
-				break;
-			case 2:
-				if (!ListaAlteracaoEstoque.isEmpty()) {
-					for (int i = 0; i < ListaAlteracaoEstoque.size(); i++) {
-						Produto saveProduct = ListaAlteracaoEstoque.get(i);
-						String idProduto = saveProduct.getCodigo();
-						int estoque = saveProduct.getEstoque();
-
-						query = "UPDATE produtos SET estoque = " + estoque + " WHERE codigoProduto = '" + idProduto
-								+ "'";
-						queryDB.updateQuery(query);
-
-						ListaAlteracaoEstoque.clear();
-					}
-				}
-				if (!ListaAlteracaoEnchimentos.isEmpty()) {
-					for (int i = 0; i < ListaAlteracaoEnchimentos.size(); i++) {
-						Produto saveProduct = ListaAlteracaoEnchimentos.get(i);
-						String idProduto = saveProduct.getCodigo();
-						int enchimentos = saveProduct.getEnchimentos();
-
-						query = "UPDATE produtos SET enchimentos = " + enchimentos + " WHERE codigoProduto = '"
-								+ idProduto + "'";
-						queryDB.updateQuery(query);
-
-						ListaAlteracaoEnchimentos.clear();
-					}
-				}
-				if (!ListaAlteracaoCortes.isEmpty()) {
-					for (int i = 0; i < ListaAlteracaoCortes.size(); i++) {
-						Produto saveProduct = ListaAlteracaoCortes.get(i);
-						String idProduto = saveProduct.getCodigo();
-						int cortes = saveProduct.getCortes();
-
-						query = "UPDATE produtos SET cortes = " + cortes + " WHERE codigoProduto = '" + idProduto + "'";
-						queryDB.updateQuery(query);
-
-						ListaAlteracaoCortes.clear();
-					}
-				}
-				if (!ListaAlteracaoObservacoes.isEmpty()) {
-					for (int i = 0; i < ListaAlteracaoObservacoes.size(); i++) {
-						Produto saveProduct = ListaAlteracaoObservacoes.get(i);
-						String idProduto = saveProduct.getCodigo();
-						String observacao = saveProduct.getObservacoes();
-
-						query = "UPDATE produtos SET observacoes = '" + observacao + "' WHERE codigoProduto = '"
-								+ idProduto + "'";
-						queryDB.updateQuery(query);
-
-						ListaAlteracaoObservacoes.clear();
-					}
-				}
-				break;
-			}
-			return response;
-		}
+		//if (true) {
+			//Alerts.showConfirmationAlert("CONFIRMAR?", "DESEJA SALVAR TODAS AS ALTERAÇÕES FEITAS?");			
+		//}
 		return 0;
 	}
 
@@ -352,7 +295,7 @@ public class FinalizacaoController implements Initializable {
 	 */
 
 	Historico historico = new Historico();
-	HistoricoRepository historicoRepo = new HistoricoRepository();
+	HistoricoDAO historicoRepo = new HistoricoDAO();
 
 	private static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	@FXML
@@ -378,6 +321,21 @@ public class FinalizacaoController implements Initializable {
 		colQuantidadeDiario.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
 		ListaDiario.clear();
+		try {
+			if(ListaDiarioTotal.isEmpty()) {
+				LocalDate data = LocalDate.now();
+				String query = "SELECT * FROM historico WHERE dataAlteracao = '"+dtf.format(data).toString()+"'";
+				resultSet = historicoRepo.selectQuery(query);
+				
+				while(resultSet.next()) {
+					ListaDiarioTotal.add(new ProdutoDiario(resultSet.getString("nomeProduto"), resultSet.getString("quantidade"), dtf.format(data).toString()));
+				}
+			}
+		}
+		catch(SQLException e) {			
+			Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
+		}
+		
 		ListaDiario.addAll(ListaDiarioTotal);
 
 		for (int i = 0; i < ListaDiario.size(); i++) {
@@ -402,11 +360,30 @@ public class FinalizacaoController implements Initializable {
 					posicao = j;
 				}
 			}
-			if (has == false) {
-				ListaDiarioTotal.add(
-						new ProdutoDiario(produtoDiario.getText().toUpperCase(), quantidadeProdutoDiario.getText()));
-			} else {
-				ListaDiarioTotal.get(posicao).setQuantity(quantidadeProdutoDiario.getText());
+			
+			try {
+				if (has == false) {
+					LocalDate data = LocalDate.now();
+					ListaDiarioTotal.add(
+							new ProdutoDiario(produtoDiario.getText().toUpperCase(), quantidadeProdutoDiario.getText(), dtf.format(data).toString()));					
+					
+					String mes = LocalDate.now().getMonth().toString();
+					mes = historicoRepo.traduct(mes);
+					int ano = LocalDate.now().getYear();
+	
+					historicoRepo.insertQueryProdutoDiario(new ProdutoDiario(produtoDiario.getText().toUpperCase(), quantidadeProdutoDiario.getText(), dtf.format(data).toString()), mes, ano);
+				} else {
+					ListaDiarioTotal.get(posicao).setQuantity(quantidadeProdutoDiario.getText());
+					
+					LocalDate data = LocalDate.now();
+					String query = "UPDATE historico SET quantidade = "+ ListaDiarioTotal.get(posicao).getQuantity() +" WHERE dataAlteracao = '"+dtf.format(data).toString()+
+							"' AND nomeProduto = '"+ListaDiarioTotal.get(posicao).getProduct()+"'";
+					
+					historicoRepo.updateQuery(query);				
+				}
+			}
+			catch(SQLException e) {
+				Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
 			}
 		}
 		atualizarTabelaDiario();
@@ -415,22 +392,8 @@ public class FinalizacaoController implements Initializable {
 	@FXML
 	private void botaoDiarioPressionado() {
 		if (!tabelaDiario.getItems().isEmpty()) {
-			int response = Alerts.showConfirmationAlert("SALVAR DIARIO",
+			Alerts.showConfirmationAlert("SALVAR DIARIO",
 					"DESEJA SALVAR TODOS OS ITENS NA DATA DE HOJE " + dtf.format(LocalDate.now()) + "?");
-			switch (response) {
-			case 1:
-				ListaDiarioTotal.clear();
-				break;
-			case 2:
-				LocalDate data = LocalDate.now();
-				String mes = LocalDate.now().getMonth().toString();
-				mes = historicoRepo.traduct(mes);
-				int ano = LocalDate.now().getYear();
-
-				historico = new Historico(ListaDiarioTotal, dtf.format(data).toString(), mes, ano);
-				historicoRepo.insertQuery(historico);
-				break;
-			}
 		} else {
 			Alerts.showAlert("CAMPO VAZIO", null,
 					"CERTIFIQUE-SE DE PREENCHER TODOS OS CAMPOS ANTES DE EXECUTAR A BUSCA", AlertType.INFORMATION);
@@ -456,12 +419,15 @@ public class FinalizacaoController implements Initializable {
 			atualizarTabelaDiario();
 		}
 	}
+	
 	/*
 	 * 
 	 * PÁGINA DE HISTÓRICO
 	 * 
 	 */
 
+	@FXML
+	private ComboBox<Integer> Dias;
 	@FXML
 	private ComboBox<String> Meses;
 	@FXML
@@ -471,15 +437,26 @@ public class FinalizacaoController implements Initializable {
 	@FXML
 	private TableView<ProdutoDiario> TabelaHistorico;
 	@FXML
+	private TableColumn<ProdutoDiario, String> colDiaHistorico;
+	@FXML
 	private TableColumn<ProdutoDiario, String> colProdutoHistorico;
 	@FXML
 	private TableColumn<ProdutoDiario, Integer> colquantidadeProdutoHistorico;
 
 	ProdutoDiario productDiario;
+	ObservableList<Integer> TodosDias = FXCollections.observableArrayList();
 	ObservableList<String> TodosMeses = FXCollections.observableArrayList();
 	ObservableList<Integer> TodosAnos = FXCollections.observableArrayList();
 	ObservableList<ProdutoDiario> listaHistorico = FXCollections.observableArrayList();
 
+	public void iniciarComboBoxDias() {
+		TodosDias.add(null);
+		for(int i = 1; i <= 31; i ++) {
+			TodosDias.add(i);
+		}
+		Dias.setItems(TodosDias);
+	}
+	
 	public void iniciarComboBoxMeses() {
 		TodosMeses.add("Janeiro");
 		TodosMeses.add("Fevereiro");
@@ -510,24 +487,26 @@ public class FinalizacaoController implements Initializable {
 			}
 			Anos.setItems(TodosAnos);
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+			Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
 		}
 	}
 
 	@FXML
 	private void carregarDadosHistorico() {
-		if (!Meses.getSelectionModel().getSelectedItem().isEmpty()
-				&& Anos.getSelectionModel().getSelectedItem() != null) {
-			query = "SELECT * FROM historico WHERE mes = '" + Meses.getSelectionModel().getSelectedItem().toUpperCase()
-					+ "' AND ano = " + Anos.getSelectionModel().getSelectedItem();
+		if(Dias.getSelectionModel().getSelectedItem() != null && !Meses.getSelectionModel().getSelectedItem().isEmpty() && Anos.getSelectionModel().getSelectedItem() != null) {
+			query = "select dataAlteracao, nomeProduto, quantidade from historico where dia = "+ Dias.getSelectionModel().getSelectedItem() +
+					" AND mes = '" + Meses.getSelectionModel().getSelectedItem() + "' AND ano = " + Anos.getSelectionModel().getSelectedItem();
+			
 			try {
 				resultSet = historicoRepo.selectQuery(query);
-
+				
+				colDiaHistorico.setCellValueFactory(new PropertyValueFactory<>("dataAlteracao"));
 				colProdutoHistorico.setCellValueFactory(new PropertyValueFactory<>("product"));
 				colquantidadeProdutoHistorico.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-
+				
 				listaHistorico.clear();
 				while (resultSet.next()) {
+					String data = resultSet.getString("dataAlteracao");
 					String nomeProduto = resultSet.getString("nomeProduto");
 					Integer quantidade = resultSet.getInt("quantidade");
 					String quantidadeFormat = quantidade.toString();
@@ -536,12 +515,13 @@ public class FinalizacaoController implements Initializable {
 
 					for (int i = 0; i < listaHistorico.size(); i++) {
 						if (listaHistorico.get(i).getProduct().equals(nomeProduto)) {
+							
 							String quantidadeCarregada = listaHistorico.get(i).getQuantity();
 							Integer formatter = Integer.parseInt(quantidadeCarregada);
 							Integer quantidadeTotal = formatter + quantidade;
 							String quantidadeAtualizada = quantidadeTotal.toString();
 
-							productDiario = new ProdutoDiario(nomeProduto, quantidadeAtualizada);
+							productDiario = new ProdutoDiario(nomeProduto, quantidadeAtualizada, data);
 							listaHistorico.set(i, productDiario);
 							produtoEncontrado = true;
 							break;
@@ -549,13 +529,58 @@ public class FinalizacaoController implements Initializable {
 					}
 
 					if (!produtoEncontrado) {
-						productDiario = new ProdutoDiario(nomeProduto, quantidadeFormat);
+						productDiario = new ProdutoDiario(nomeProduto, quantidadeFormat, data);
 						listaHistorico.add(productDiario);
 					}
 				}
 				TabelaHistorico.setItems(listaHistorico);
 			} catch (SQLException e) {
-				System.out.println(e.getMessage());
+				Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
+			}
+			
+		}
+		else if (!Meses.getSelectionModel().getSelectedItem().isEmpty() && Anos.getSelectionModel().getSelectedItem() != null) {
+			query = "SELECT nomeProduto, quantidade, dataAlteracao FROM historico WHERE mes = '" + Meses.getSelectionModel().getSelectedItem().toUpperCase()
+					+ "' AND ano = " + Anos.getSelectionModel().getSelectedItem();
+			try {
+				resultSet = historicoRepo.selectQuery(query);
+
+				colDiaHistorico.setCellValueFactory(new PropertyValueFactory<>("dataAlteracao"));
+				colProdutoHistorico.setCellValueFactory(new PropertyValueFactory<>("product"));
+				colquantidadeProdutoHistorico.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+
+				listaHistorico.clear();
+				while (resultSet.next()) {
+					String data = resultSet.getString("dataAlteracao");
+					String nomeProduto = resultSet.getString("nomeProduto");
+					Integer quantidade = resultSet.getInt("quantidade");
+					String quantidadeFormat = quantidade.toString();
+
+					boolean produtoEncontrado = false;
+
+					for (int i = 0; i < listaHistorico.size(); i++) {
+						if (listaHistorico.get(i).getProduct().equals(nomeProduto)) {
+							
+							String quantidadeCarregada = listaHistorico.get(i).getQuantity();
+							Integer formatter = Integer.parseInt(quantidadeCarregada);
+							Integer quantidadeTotal = formatter + quantidade;
+							String quantidadeAtualizada = quantidadeTotal.toString();
+
+							productDiario = new ProdutoDiario(nomeProduto, quantidadeAtualizada, data);
+							listaHistorico.set(i, productDiario);
+							produtoEncontrado = true;
+							break;
+						}
+					}
+
+					if (!produtoEncontrado) {
+						productDiario = new ProdutoDiario(nomeProduto, quantidadeFormat, data);
+						listaHistorico.add(productDiario);
+					}
+				}
+				TabelaHistorico.setItems(listaHistorico);
+			} catch (SQLException e) {
+				Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
 			}
 		} else {
 			Alerts.showAlert("CAMPO VAZIO", null,
@@ -563,16 +588,47 @@ public class FinalizacaoController implements Initializable {
 		}
 	}
 	
-	public void OnCloseRequest() {
-		if(!ListaDiario.isEmpty() || !ListaDiarioTotal.isEmpty()) {
-			botaoDiarioPressionado();
-			System.out.println("Executado!");
-		}
-		System.out.println(ListaAlteracaoEstoque.toString());
-		if (!ListaAlteracaoEstoque.isEmpty() || !ListaAlteracaoEnchimentos.isEmpty() || !ListaAlteracaoCortes.isEmpty()
-				|| !ListaAlteracaoObservacoes.isEmpty()) {
-			atualizarEstoque();
-		}
-		
+	public void salvarAoFechar() {
+		if(!listaAlteracoes.isEmpty()) {
+    		listaAlteracoes.forEach(que -> {
+				try {
+					ProductDAO productRepository = new ProductDAO();
+					productRepository.updateQuery(que);
+					
+				} catch (SQLException e) {
+					Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
+				}
+			});	        		
+    	}
 	}
+	
+	public void salvamentoAutomatico() throws DataException{
+		Timer timer = new Timer();
+	    TimerTask tarefa = new TimerTask() {
+	        @Override
+	        public void run() {
+	        	if(!listaAlteracoes.isEmpty()) {
+	        		listaAlteracoes.forEach(que -> {
+						try {
+							ProductDAO productRepository = new ProductDAO();
+							productRepository.updateQuery(que);
+							
+							if(true) {
+								throw new DataException("Aplicação finalizada");
+							}							
+						} catch (SQLException e) {
+							Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
+						} catch (DataException e) {
+						}
+					});	        		
+	        	}
+	        	
+	        }
+	    };
+	    
+	    timer.scheduleAtFixedRate(tarefa, 0, 180000);
+	    
+		//atualizarEstoque();
+	}
+	
 }

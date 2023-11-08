@@ -9,8 +9,9 @@ import connection.DBConnection;
 import gui.util.Alerts;
 import javafx.scene.control.Alert.AlertType;
 import model.entities.Historico;
+import model.entities.ProdutoDiario;
 
-public class HistoricoRepository implements Repositorio{
+public class HistoricoDAO implements DAOFactory{
 	Connection connection = null;
 	PreparedStatement preparedStatement = null;
 	ResultSet resultSet = null;
@@ -62,14 +63,30 @@ public class HistoricoRepository implements Repositorio{
 	    return traductedMonth.toUpperCase();
 	}
 	
-	public void insertQuery(Historico historico) {
+	public void insertQueryProdutoDiario(ProdutoDiario produto, String month, int year) throws SQLException {
+		query = "INSERT INTO historico(nomeProduto, quantidade, dataAlteracao, mes, ano) VALUES(?,?,?,?,?)";
+		connection = DBConnection.getConnection();
+	    preparedStatement = connection.prepareStatement(query);
+		try {
+		    preparedStatement.setString(1, produto.getProduct());
+		    preparedStatement.setInt(2, Integer.parseInt(produto.getQuantity()));
+		    preparedStatement.setString(3, produto.getDataAlteracao());
+		    preparedStatement.setString(4, month);
+		    preparedStatement.setInt(5, year);
+
+		    preparedStatement.executeUpdate();
+		} catch (SQLException e) {
+		    Alerts.showAlert("ERROR", null, "ERRO DESCONHECIDO: "+ e.getMessage(), AlertType.ERROR);
+		}
+	}
+	
+	public void insertQuery(Historico historico) throws SQLException {
 		for (int i = 0; i < historico.getLista().size(); i++) {
 			query = "INSERT INTO historico(nomeProduto, quantidade, dataAlteracao, mes, ano) VALUES(?,?,?,?,?)";
+			connection = DBConnection.getConnection();
+		    preparedStatement = connection.prepareStatement(query);
 			try {
-			    connection = DBConnection.getConnection();
-			    preparedStatement = connection.prepareStatement(query);
-
-			    int quantidade = Integer.parseInt(historico.getLista().get(i).getQuantity());
+				int quantidade = Integer.parseInt(historico.getLista().get(i).getQuantity());
 			    
 			    preparedStatement.setString(1, historico.getLista().get(i).getProduct());
 			    preparedStatement.setInt(2, quantidade);
@@ -80,7 +97,7 @@ public class HistoricoRepository implements Repositorio{
 			    preparedStatement.executeUpdate();
 			} catch (SQLException e) {
 			    Alerts.showAlert("ERROR", null, "ERRO DESCONHECIDO: "+ e.getMessage(), AlertType.ERROR);
-			}			
+			}
 		}
 	}
 }
