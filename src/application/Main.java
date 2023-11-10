@@ -1,13 +1,17 @@
 package application;
 
 import java.io.IOException;
+import java.util.Optional;
+
 import gui.FinalizacaoController;
 import gui.util.Alerts;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
@@ -15,9 +19,8 @@ public class Main extends Application {
 	@Override
 	public void start(Stage stage) {
 		try {
-			FinalizacaoController fc = new FinalizacaoController();
-			
-			Parent parent = FXMLLoader.load(getClass().getResource("/gui/Finalizacao.fxml"));					
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/Finalizacao.fxml"));
+			Parent parent = loader.load();
 			Scene scene = new Scene(parent);
 			stage.setResizable(false);			
 			stage.setScene(scene);
@@ -26,6 +29,22 @@ public class Main extends Application {
 			Image image = new Image("/Icones/fofuchosLogotipo.png");
 			stage.getIcons().add(image);	
 			
+			//erro aqui
+			stage.setOnCloseRequest(evento -> {	
+				evento.consume();
+				Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+			    alert.setTitle("Confirmação");
+			    alert.setHeaderText(null);
+			    alert.setContentText("Você tem certeza que deseja sair?\nClique em OK para sair.");
+
+			    Optional<ButtonType> result = alert.showAndWait();
+			    if (result.isPresent() && result.get() == ButtonType.OK) {
+		    		FinalizacaoController fc = loader.getController();
+					fc.salvamentoAutomatico();				
+			    	
+			        stage.close(); // Fecha a janela após confirmação
+			    }
+			});
 		} catch (IOException e) {
 			Alerts.showAlert("ERRO!!", null, "ERRO DESCONHECIDO, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
 		}

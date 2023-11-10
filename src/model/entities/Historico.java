@@ -11,15 +11,17 @@ public class Historico implements Serializable{
 	
 	List <ProdutoDiario> lista = new ArrayList<>();
 	String date;
+	int dia;
 	String month;
 	int year;
 	
 	public Historico() {
 	}
 	
-	public Historico(List<ProdutoDiario> lista, String date, String month, int year) {
+	public Historico(List<ProdutoDiario> lista, String date,int dia, String month, int year) {
 		this.lista = lista;
 		this.date = date;
+		this.dia = dia;
 		this.month = month;
 		this.year = year;
 	}

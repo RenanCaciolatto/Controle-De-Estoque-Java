@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import gui.util.Alerts;
 import gui.util.Constraints;
 import javafx.collections.FXCollections;
@@ -32,7 +33,6 @@ import javafx.util.converter.IntegerStringConverter;
 import model.entities.Historico;
 import model.entities.Produto;
 import model.entities.ProdutoDiario;
-import model.exceptions.DataException;
 import model.repositores.HistoricoDAO;
 import model.repositores.ProductDAO;
 
@@ -96,16 +96,24 @@ public class FinalizacaoController implements Initializable {
 		iniciarComboBoxAnos();
 		
 		// SALVAR AUTOMATICO
-		try {
-			salvamentoAutomatico();
-		}
-		catch(DataException e) {
-		}
+		salvamentoAutomatico();
 	}
-
-	// CARREGA A LISTA COM TODOS OS PRODUTOS QUE VIER DO BANCO
-	private void atualizarTabela() {
+	
+	// CARREGA A TABELA COM AS INFORMAÇÕES DO BANCO E DEFINE AS ULTIMAS 3 COLUNAS
+	// COMO EDITAVEIS
+	private void carregarDados() {
 		try {
+			colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
+			colNomeProduto.setCellValueFactory(new PropertyValueFactory<>("nomeProduto"));
+			colEmEstoque.setCellValueFactory(new PropertyValueFactory<>("estoque"));
+			colEnchimentos.setCellValueFactory(new PropertyValueFactory<>("enchimentos"));
+			colCortes.setCellValueFactory(new PropertyValueFactory<>("cortes"));
+		
+		
+			colEmEstoque.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+			colEnchimentos.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+			colCortes.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+			
 			ListaProdutos.clear();
 			query = "SELECT * FROM produtos";
 			resultSet = queryDB.selectQuery(query);
@@ -116,30 +124,21 @@ public class FinalizacaoController implements Initializable {
 						resultSet.getString("observacoes")));
 				tabelaProduto.setItems(ListaProdutos);
 			}
-		} catch (SQLException e) {
-			Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
-		}
-	}
-
-	// CARREGA A TABELA COM AS INFORMAÇÕES DO BANCO E DEFINE AS ULTIMAS 3 COLUNAS
-	// COMO EDITAVEIS
-	private void carregarDados() {
-		atualizarTabela();
-
-		colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
-		colNomeProduto.setCellValueFactory(new PropertyValueFactory<>("nomeProduto"));
-		colEmEstoque.setCellValueFactory(new PropertyValueFactory<>("estoque"));
-		colEnchimentos.setCellValueFactory(new PropertyValueFactory<>("enchimentos"));
-		colCortes.setCellValueFactory(new PropertyValueFactory<>("cortes"));
-		
-		try {
-			colEmEstoque.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-			colEnchimentos.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-			colCortes.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+			
 		} catch (NumberFormatException e) {
 			Alerts.showAlert("TIPO INCOMPATÍVEL", null, "ERRO: O CONTEÚDO DA TABELA DEVE SER UM NÚMERO INTEIRO!!\nTIPO DE ERRO: "+e.getMessage(), AlertType.ERROR);
 		}
+		catch (SQLException er) {
+			Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + er.getMessage(), AlertType.ERROR);
+		}
 	}
+
+	// CARREGA A LISTA COM TODOS OS PRODUTOS QUE VIER DO BANCO
+	private void atualizarTabela() {
+		tabelaProduto.setItems(ListaProdutos);
+	}
+
+	
 
 	// CARREGA A COMBOBOX COM AS COLEÇÕES QUE VEM DO BANCO
 	private void definirDadosDaComboBox() {
@@ -251,11 +250,21 @@ public class FinalizacaoController implements Initializable {
 				int valorEnchimentos = colEnchimentos.getCellData(item);
 				int valorCortes = colCortes.getCellData(item);
 				
+				int posicao = 0;
+				for(int i = 0; i< ListaProdutos.size(); i++) {
+					
+					if(ListaProdutos.get(i).getCodigo() == codigoProduto) {
+						posicao = i;
+					}
+				}
+				
 				T novoValor = event.getNewValue();
 				if (novoValor instanceof Integer) {
 					// Descobrindo qual coluna foi alterada
 					if (coluna == colEmEstoque) {
 						valorEmEstoque = (Integer) novoValor;
+						
+						ListaProdutos.get(posicao).setEstoque(valorEmEstoque);
 						
 						query = "UPDATE produtos SET estoque = " + valorEmEstoque + " WHERE codigoProduto = '" + codigoProduto
 								+ "'";
@@ -264,11 +273,15 @@ public class FinalizacaoController implements Initializable {
 					} else if (coluna == colEnchimentos) {
 						valorEnchimentos = (Integer) novoValor;
 						
+						ListaProdutos.get(posicao).setEnchimentos(valorEnchimentos);;
+						
 						query = "UPDATE produtos SET enchimentos = " + valorEnchimentos + " WHERE codigoProduto = '" + codigoProduto + "'";
 						listaAlteracoes.add(query);
 
 					} else if (coluna == colCortes) {
 						valorCortes = (Integer) novoValor;
+						
+						ListaProdutos.get(posicao).setCortes(valorCortes);;
 						
 						query = "UPDATE produtos SET cortes = " + valorCortes + " WHERE codigoProduto = '" + codigoProduto + "'";						
 						listaAlteracoes.add(query);
@@ -277,6 +290,7 @@ public class FinalizacaoController implements Initializable {
 				
 			}
 		});
+		atualizarTabela();
 	}
 
 	// ENVIA UM ALERTA PERGUNTANDO SE REALMENTE DESEJA EFETUAR AS ALTERAÇÕES
@@ -367,11 +381,12 @@ public class FinalizacaoController implements Initializable {
 					ListaDiarioTotal.add(
 							new ProdutoDiario(produtoDiario.getText().toUpperCase(), quantidadeProdutoDiario.getText(), dtf.format(data).toString()));					
 					
+					int dia = LocalDate.now().getDayOfYear();
 					String mes = LocalDate.now().getMonth().toString();
 					mes = historicoRepo.traduct(mes);
 					int ano = LocalDate.now().getYear();
 	
-					historicoRepo.insertQueryProdutoDiario(new ProdutoDiario(produtoDiario.getText().toUpperCase(), quantidadeProdutoDiario.getText(), dtf.format(data).toString()), mes, ano);
+					historicoRepo.insertQueryProdutoDiario(new ProdutoDiario(produtoDiario.getText().toUpperCase(), quantidadeProdutoDiario.getText(), dtf.format(data).toString()),dia, mes, ano);
 				} else {
 					ListaDiarioTotal.get(posicao).setQuantity(quantidadeProdutoDiario.getText());
 					
@@ -379,7 +394,7 @@ public class FinalizacaoController implements Initializable {
 					String query = "UPDATE historico SET quantidade = "+ ListaDiarioTotal.get(posicao).getQuantity() +" WHERE dataAlteracao = '"+dtf.format(data).toString()+
 							"' AND nomeProduto = '"+ListaDiarioTotal.get(posicao).getProduct()+"'";
 					
-					historicoRepo.updateQuery(query);				
+					listaAlteracoes.add(query);				
 				}
 			}
 			catch(SQLException e) {
@@ -588,38 +603,21 @@ public class FinalizacaoController implements Initializable {
 		}
 	}
 	
-	public void salvarAoFechar() {
-		if(!listaAlteracoes.isEmpty()) {
-    		listaAlteracoes.forEach(que -> {
-				try {
-					ProductDAO productRepository = new ProductDAO();
-					productRepository.updateQuery(que);
-					
-				} catch (SQLException e) {
-					Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
-				}
-			});	        		
-    	}
-	}
-	
-	public void salvamentoAutomatico() throws DataException{
+	public void salvamentoAutomatico(){
 		Timer timer = new Timer();
 	    TimerTask tarefa = new TimerTask() {
 	        @Override
 	        public void run() {
+	        	System.out.println("rodou");
 	        	if(!listaAlteracoes.isEmpty()) {
 	        		listaAlteracoes.forEach(que -> {
 						try {
 							ProductDAO productRepository = new ProductDAO();
 							productRepository.updateQuery(que);
-							
-							if(true) {
-								throw new DataException("Aplicação finalizada");
-							}							
+													
 						} catch (SQLException e) {
 							Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
-						} catch (DataException e) {
-						}
+						} 
 					});	        		
 	        	}
 	        	
@@ -627,8 +625,6 @@ public class FinalizacaoController implements Initializable {
 	    };
 	    
 	    timer.scheduleAtFixedRate(tarefa, 0, 180000);
-	    
-		//atualizarEstoque();
 	}
 	
 }

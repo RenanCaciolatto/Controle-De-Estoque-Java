@@ -18,7 +18,7 @@
    <children>
       <TabPane prefHeight="600.0" prefWidth="800.0" style="-fx-border-color: black;" tabClosingPolicy="UNAVAILABLE">
         <tabs>
-            <Tab style="-fx-background-color: #e4e5e6; -fx-border-color: black; -fx-border-radius: 4; -fx-text-fill: white;" text="Diário">
+            <Tab style="-fx-background-color: #e4e5e6; -fx-border-color: black; -fx-border-radius: 4; -fx-font-weight: bold; -fx-font-size: 15;" text="Diário">
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #bac6d5;">
                      <children>
@@ -41,8 +41,8 @@
                            <content>
                               <TableView fx:id="tabelaDiario" prefHeight="397.0" prefWidth="718.0">
                                 <columns>
-                                  <TableColumn fx:id="colNomeProdutoDiario" prefWidth="549.0" style="-fx-border-color: black;" text="NOME DO PRODUTO" />
-                                  <TableColumn fx:id="colQuantidadeDiario" prefWidth="155.0" style="-fx-border-color: black;" text="QUANTIDADE" />
+                                  <TableColumn fx:id="colNomeProdutoDiario" prefWidth="549.0" style="-fx-border-color: black; -fx-font-size: 13;" text="NOME DO PRODUTO" />
+                                  <TableColumn fx:id="colQuantidadeDiario" prefWidth="152.0" style="-fx-border-color: black; -fx-font-size: 13;" text="QUANTIDADE" />
                                 </columns>
                               </TableView>
                            </content>
@@ -52,11 +52,11 @@
                               <Font size="14.0" />
                            </font>
                         </TextField>
-                        <Button fx:id="botaoSalvar" layoutX="675.0" layoutY="516.0" mnemonicParsing="false" onAction="#botaoDiarioPressionado" prefHeight="33.0" prefWidth="83.0" style="-fx-border-color: black; -fx-text-fill: white; -fx-background-color: #0a66b5; -fx-border-radius: 3;" text="SALVAR" textFill="#9a9595">
+                        <Button fx:id="botaoSalvar" layoutX="675.0" layoutY="516.0" mnemonicParsing="false" onAction="#botaoDiarioPressionado" prefHeight="33.0" prefWidth="83.0" style="-fx-border-color: black; -fx-text-fill: white; -fx-background-color: #0a66b5; -fx-border-radius: 3; -fx-font-size: 15; -fx-font-weight: bold;" text="SALVAR" textFill="#9a9595">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></Button>
-                        <Button fx:id="botaoDescartar" layoutX="577.0" layoutY="516.0" mnemonicParsing="false" onAction="#botaoDescartarPressionado" prefHeight="33.0" prefWidth="83.0" style="-fx-border-color: black; -fx-text-fill: white; -fx-background-color: #0a66b5; -fx-border-radius: 3;" text="EXCLUIR" textFill="#9a9595">
+                        <Button fx:id="botaoDescartar" layoutX="577.0" layoutY="516.0" mnemonicParsing="false" onAction="#botaoDescartarPressionado" prefHeight="33.0" prefWidth="83.0" style="-fx-border-color: black; -fx-text-fill: white; -fx-background-color: #0a66b5; -fx-border-radius: 3; -fx-font-size: 15; -fx-font-weight: bold;" text="EXCLUIR" textFill="#9a9595">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor>
@@ -64,30 +64,30 @@
                      </children></AnchorPane>
                </content>
             </Tab>
-          <Tab style="-fx-background-color: #e4e5e6; -fx-border-color: black; -fx-border-radius: 4;" text="Estoque">
+          <Tab style="-fx-background-color: #e4e5e6; -fx-border-color: black; -fx-border-radius: 4; -fx-font-weight: bold; -fx-font-size: 15;" text="Estoque">
                <content>
                   <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="571.0" prefWidth="800.0" style="-fx-background-color: #bac6d5;">
                      <children>
-                        <ComboBox fx:id="comboboxProduto" layoutX="32.0" layoutY="30.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#definirTabelaPelaComboBox" prefHeight="29.0" prefWidth="326.0" promptText="COLEÇÕES" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white;">
+                        <ComboBox fx:id="comboboxProduto" layoutX="32.0" layoutY="30.0" nodeOrientation="LEFT_TO_RIGHT" onAction="#definirTabelaPelaComboBox" prefHeight="29.0" prefWidth="326.0" promptText="COLEÇÕES" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white; -fx-font-size: 15; -fx-font-weight: bold;">
                            <cursor>
                               <Cursor fx:constant="DEFAULT" />
                            </cursor></ComboBox>
-                        <Label layoutX="32.0" layoutY="459.0" prefHeight="22.0" prefWidth="138.0" text="Observações">
+                        <Label layoutX="32.0" layoutY="454.0" prefHeight="22.0" prefWidth="138.0" style="-fx-font-size: 20; -fx-font-weight: bold;" text="Observações">
                            <font>
                               <Font name="System Bold" size="18.0" />
                            </font>
                         </Label>
                         <TextArea fx:id="observacoes" layoutX="32.0" layoutY="484.0" onMouseExited="#definirObservacoesAoEditar" prefHeight="63.0" prefWidth="324.0" style="-fx-border-color: black; -fx-border-radius: 3;" />
-                        <Button cache="true" cacheHint="SPEED" depthTest="DISABLE" layoutX="679.0" layoutY="516.0" mnemonicParsing="false" onAction="#atualizarEstoque" prefHeight="33.0" prefWidth="83.0" style="-fx-border-color: black; -fx-background-color: #0a66b5; -fx-text-fill: white; -fx-border-radius: 3;" text="SALVAR" />
+                        <Button cache="true" cacheHint="SPEED" depthTest="DISABLE" layoutX="679.0" layoutY="516.0" mnemonicParsing="false" onAction="#atualizarEstoque" prefHeight="33.0" prefWidth="83.0" style="-fx-border-color: black; -fx-background-color: #0a66b5; -fx-text-fill: white; -fx-border-radius: 3; -fx-font-size: 15; -fx-font-weight: bold;" text="SALVAR" />
                         <ScrollPane hbarPolicy="NEVER" layoutX="32.0" layoutY="82.0" prefHeight="369.0" prefWidth="730.0" style="-fx-border-color: black;">
                            <content>
                               <TableView fx:id="tabelaProduto" editable="true" onMouseClicked="#definirObservacoes" prefHeight="369.0" prefWidth="730.0">
                                  <columns>
-                                    <TableColumn fx:id="colCodigo" editable="false" prefWidth="76.0" style="-fx-border-color: black;" text="Código" />
-                                    <TableColumn fx:id="colNomeProduto" editable="false" prefWidth="395.0" style="-fx-border-color: black;" text="Nome do Produto" />
-                                    <TableColumn fx:id="colEmEstoque" minWidth="0.0" onEditCommit="#manipuladorDeCommit" prefWidth="97.0" style="-fx-border-color: black;" text="Em Estoque" />
-                                    <TableColumn fx:id="colEnchimentos" onEditCommit="#manipuladorDeCommit" prefWidth="87.0" style="-fx-border-color: black;" text="Enchimentos" />
-                                    <TableColumn fx:id="colCortes" onEditCommit="#manipuladorDeCommit" prefWidth="59.0" style="-fx-border-color: black;" text="Cortes" />
+                                    <TableColumn fx:id="colCodigo" editable="false" prefWidth="76.0" style="-fx-border-color: black; -fx-font-size: 13;" text="Código" />
+                                    <TableColumn fx:id="colNomeProduto" editable="false" prefWidth="385.0" style="-fx-border-color: black; -fx-font-size: 13;" text="Nome do Produto" />
+                                    <TableColumn fx:id="colEmEstoque" minWidth="0.0" onEditCommit="#manipuladorDeCommit" prefWidth="99.0" style="-fx-border-color: black; -fx-font-size: 13;" text="Em Estoque" />
+                                    <TableColumn fx:id="colEnchimentos" onEditCommit="#manipuladorDeCommit" prefWidth="95.0" style="-fx-border-color: black; -fx-font-size: 13;" text="Enchimentos" />
+                                    <TableColumn fx:id="colCortes" onEditCommit="#manipuladorDeCommit" prefWidth="57.0" style="-fx-border-color: black; -fx-font-size: 13;" text="Cortes" />
                                  </columns>
                               </TableView>
                            </content>
@@ -96,7 +96,7 @@
                   </AnchorPane>
                </content>
           </Tab>
-          <Tab style="-fx-background-color: #e4e5e6; -fx-border-color: black; -fx-border-radius: 4;" text="Histórico">
+          <Tab style="-fx-background-color: #e4e5e6; -fx-border-color: black; -fx-border-radius: 4; -fx-font-weight: bold; -fx-font-size: 15;" text="Histórico">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: #bac6d5;">
                      <children>
@@ -104,17 +104,17 @@
                            <content>
                               <TableView fx:id="TabelaHistorico" prefHeight="460.0" prefWidth="743.0">
                                 <columns>
-                                    <TableColumn fx:id="colDiaHistorico" minWidth="0.0" prefWidth="90.0" style="-fx-border-color: black;" text="DIA" />
-                                  <TableColumn fx:id="colProdutoHistorico" prefWidth="525.0" style="-fx-border-color: black;" text="NOME DO PRODUTO" />
-                                  <TableColumn fx:id="colquantidadeProdutoHistorico" minWidth="0.0" prefWidth="111.0" style="-fx-border-color: black;" text="QUANTIDADE" />
+                                    <TableColumn fx:id="colDiaHistorico" minWidth="0.0" prefWidth="90.0" style="-fx-border-color: black; -fx-font-size: 13;" text="DIA" />
+                                  <TableColumn fx:id="colProdutoHistorico" prefWidth="525.0" style="-fx-border-color: black; -fx-font-size: 13;" text="NOME DO PRODUTO" />
+                                  <TableColumn fx:id="colquantidadeProdutoHistorico" minWidth="0.0" prefWidth="111.0" style="-fx-border-color: black; -fx-font-size: 13;" text="QUANTIDADE" />
                                 </columns>
                               </TableView>
                            </content>
                         </ScrollPane>
-                        <ComboBox fx:id="Meses" layoutX="132.0" layoutY="31.0" prefHeight="28.0" prefWidth="194.0" promptText="MÊS" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white;" visibleRowCount="3" />
-                        <ComboBox fx:id="Anos" layoutX="342.0" layoutY="31.0" prefHeight="28.0" prefWidth="80.0" promptText="ANO" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white;" />
-                        <Button fx:id="botaoBuscar" layoutX="444.0" layoutY="30.0" mnemonicParsing="false" onAction="#carregarDadosHistorico" prefHeight="29.0" prefWidth="81.0" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: #0a66b5; -fx-text-fill: white;" text="BUSCAR" />
-                        <ComboBox fx:id="Dias" layoutX="32.0" layoutY="31.0" prefHeight="28.0" prefWidth="80.0" promptText="DIA" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white;" />
+                        <ComboBox fx:id="Meses" layoutX="132.0" layoutY="31.0" prefHeight="28.0" prefWidth="194.0" promptText="MÊS" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white; -fx-font-size: 15; -fx-font-weight: bold;" visibleRowCount="3" />
+                        <ComboBox fx:id="Anos" layoutX="342.0" layoutY="31.0" prefHeight="33.0" prefWidth="91.0" promptText="ANO" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white; -fx-font-weight: bold; -fx-font-size: 15;" />
+                        <Button fx:id="botaoBuscar" layoutX="444.0" layoutY="30.0" mnemonicParsing="false" onAction="#carregarDadosHistorico" prefHeight="29.0" prefWidth="81.0" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: #0a66b5; -fx-text-fill: white; -fx-font-size: 15; -fx-font-weight: bold;" text="BUSCAR" />
+                        <ComboBox fx:id="Dias" layoutX="32.0" layoutY="31.0" prefHeight="33.0" prefWidth="89.0" promptText="DIA" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white; -fx-font-weight: bold; -fx-font-size: 15;" />
                      </children></AnchorPane>
             </content>
           </Tab>

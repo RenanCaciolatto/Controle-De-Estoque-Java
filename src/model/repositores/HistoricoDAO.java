@@ -63,16 +63,17 @@ public class HistoricoDAO implements DAOFactory{
 	    return traductedMonth.toUpperCase();
 	}
 	
-	public void insertQueryProdutoDiario(ProdutoDiario produto, String month, int year) throws SQLException {
-		query = "INSERT INTO historico(nomeProduto, quantidade, dataAlteracao, mes, ano) VALUES(?,?,?,?,?)";
+	public void insertQueryProdutoDiario(ProdutoDiario produto, int dia, String month, int year) throws SQLException {
+		query = "INSERT INTO historico(nomeProduto, quantidade, dataAlteracao,dia, mes, ano) VALUES(?,?,?,?,?,?)";
 		connection = DBConnection.getConnection();
 	    preparedStatement = connection.prepareStatement(query);
 		try {
 		    preparedStatement.setString(1, produto.getProduct());
 		    preparedStatement.setInt(2, Integer.parseInt(produto.getQuantity()));
 		    preparedStatement.setString(3, produto.getDataAlteracao());
-		    preparedStatement.setString(4, month);
-		    preparedStatement.setInt(5, year);
+		    preparedStatement.setInt(4, dia);
+		    preparedStatement.setString(5, month);
+		    preparedStatement.setInt(6, year);
 
 		    preparedStatement.executeUpdate();
 		} catch (SQLException e) {
@@ -82,7 +83,7 @@ public class HistoricoDAO implements DAOFactory{
 	
 	public void insertQuery(Historico historico) throws SQLException {
 		for (int i = 0; i < historico.getLista().size(); i++) {
-			query = "INSERT INTO historico(nomeProduto, quantidade, dataAlteracao, mes, ano) VALUES(?,?,?,?,?)";
+			query = "INSERT INTO historico(nomeProduto, quantidade, dataAlteracao, dia, mes, ano) VALUES(?,?,?,?,?)";
 			connection = DBConnection.getConnection();
 		    preparedStatement = connection.prepareStatement(query);
 			try {
