@@ -8,8 +8,8 @@ import java.sql.SQLException;
 import connection.DBConnection;
 import gui.util.Alerts;
 import javafx.scene.control.Alert.AlertType;
+import model.entities.DiarioManipulador;
 import model.entities.Historico;
-import model.entities.ProdutoDiario;
 
 public class HistoricoDAO implements DAOFactory{
 	Connection connection = null;
@@ -63,17 +63,17 @@ public class HistoricoDAO implements DAOFactory{
 	    return traductedMonth.toUpperCase();
 	}
 	
-	public void insertQueryProdutoDiario(ProdutoDiario produto, int dia, String month, int year) throws SQLException {
+	public void insertQueryProdutoDiario(DiarioManipulador d) throws SQLException {
 		query = "INSERT INTO historico(nomeProduto, quantidade, dataAlteracao,dia, mes, ano) VALUES(?,?,?,?,?,?)";
 		connection = DBConnection.getConnection();
 	    preparedStatement = connection.prepareStatement(query);
 		try {
-		    preparedStatement.setString(1, produto.getProduct());
-		    preparedStatement.setInt(2, Integer.parseInt(produto.getQuantity()));
-		    preparedStatement.setString(3, produto.getDataAlteracao());
-		    preparedStatement.setInt(4, dia);
-		    preparedStatement.setString(5, month);
-		    preparedStatement.setInt(6, year);
+		    preparedStatement.setString(1, d.getProdutoDiario().getProduct());
+		    preparedStatement.setInt(2, Integer.parseInt(d.getProdutoDiario().getQuantity()));
+		    preparedStatement.setString(3, d.getProdutoDiario().getDataAlteracao());
+		    preparedStatement.setInt(4, d.getDia());
+		    preparedStatement.setString(5, d.getMes());
+		    preparedStatement.setInt(6, d.getAno());
 
 		    preparedStatement.executeUpdate();
 		} catch (SQLException e) {
