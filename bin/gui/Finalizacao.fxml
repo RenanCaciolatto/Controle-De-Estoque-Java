@@ -115,6 +115,7 @@
                         <ComboBox fx:id="Anos" layoutX="342.0" layoutY="31.0" prefHeight="33.0" prefWidth="91.0" promptText="ANO" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white; -fx-font-weight: bold; -fx-font-size: 15;" />
                         <Button fx:id="botaoBuscar" layoutX="444.0" layoutY="30.0" mnemonicParsing="false" onAction="#carregarDadosHistorico" prefHeight="29.0" prefWidth="81.0" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: #0a66b5; -fx-text-fill: white; -fx-font-size: 15; -fx-font-weight: bold;" text="BUSCAR" />
                         <ComboBox fx:id="Dias" layoutX="32.0" layoutY="31.0" prefHeight="33.0" prefWidth="89.0" promptText="DIA" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: white; -fx-font-weight: bold; -fx-font-size: 15;" />
+                        <Button fx:id="botaoPdf" layoutX="672.0" layoutY="30.0" mnemonicParsing="false" onAction="#criarPDF" prefHeight="33.0" prefWidth="104.0" style="-fx-border-color: black; -fx-border-radius: 3; -fx-background-color: #0a66b5; -fx-text-fill: white; -fx-font-size: 15; -fx-font-weight: bold;" text="GERAR PDF" />
                      </children></AnchorPane>
             </content>
           </Tab>

@@ -6,6 +6,7 @@ import java.util.Optional;
 import gui.FinalizacaoController;
 import gui.util.Alerts;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -29,7 +30,6 @@ public class Main extends Application {
 			Image image = new Image("/Icones/fofuchosLogotipo.png");
 			stage.getIcons().add(image);	
 			
-			//erro aqui
 			stage.setOnCloseRequest(evento -> {	
 				evento.consume();
 				Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -42,10 +42,12 @@ public class Main extends Application {
 		    		FinalizacaoController fc = loader.getController();
 					fc.salvamentoAutomatico();				
 			    	
-			        stage.close(); // Fecha a janela após confirmação
+			        stage.close(); 
+			        Platform.exit();
 			    }
 			});
 		} catch (IOException e) {
+			e.printStackTrace();
 			Alerts.showAlert("ERRO!!", null, "ERRO DESCONHECIDO, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
 		}
 	}

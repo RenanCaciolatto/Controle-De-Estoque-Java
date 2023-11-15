@@ -1,5 +1,6 @@
 package gui;
 
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,6 +12,13 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
 
 import gui.util.Alerts;
 import gui.util.Constraints;
@@ -358,7 +366,7 @@ public class FinalizacaoController implements Initializable {
 	}
 
 	private void alertaCampoVazio() {
-		Alerts.showAlert("CAMPO VAZIO", null, "CERTIFIQUE DE PREENCHER TODOS OS CAMPOS!", AlertType.INFORMATION);
+		Alerts.showAlert("CAMPO VAZIO", null, "CERTIFIQUE DE PREENCHER TsODOS OS CAMPOS!", AlertType.INFORMATION);
 	}
 
 	@FXML
@@ -381,7 +389,7 @@ public class FinalizacaoController implements Initializable {
 					ListaDiarioTotal.add(
 							new ProdutoDiario(produtoDiario.getText().toUpperCase(), quantidadeProdutoDiario.getText(), dtf.format(data).toString()));					
 					
-					int dia = LocalDate.now().getDayOfYear();
+					int dia = LocalDate.now().getDayOfMonth();
 					String mes = LocalDate.now().getMonth().toString();
 					mes = historicoRepo.traduct(mes);
 					int ano = LocalDate.now().getYear();
@@ -450,6 +458,8 @@ public class FinalizacaoController implements Initializable {
 	@FXML
 	private Button botaoBuscar;
 	@FXML
+	private Button botaoPdf;
+	@FXML
 	private TableView<ProdutoDiario> TabelaHistorico;
 	@FXML
 	private TableColumn<ProdutoDiario, String> colDiaHistorico;
@@ -508,7 +518,7 @@ public class FinalizacaoController implements Initializable {
 
 	@FXML
 	private void carregarDadosHistorico() {
-		if(Dias.getSelectionModel().getSelectedItem() != null && !Meses.getSelectionModel().getSelectedItem().isEmpty() && Anos.getSelectionModel().getSelectedItem() != null) {
+		if(Dias.getSelectionModel().getSelectedItem() != null && Meses.getSelectionModel().getSelectedItem() != null && Anos.getSelectionModel().getSelectedItem() != null) {
 			query = "select dataAlteracao, nomeProduto, quantidade from historico where dia = "+ Dias.getSelectionModel().getSelectedItem() +
 					" AND mes = '" + Meses.getSelectionModel().getSelectedItem() + "' AND ano = " + Anos.getSelectionModel().getSelectedItem();
 			
@@ -554,9 +564,52 @@ public class FinalizacaoController implements Initializable {
 			}
 			
 		}
-		else if (!Meses.getSelectionModel().getSelectedItem().isEmpty() && Anos.getSelectionModel().getSelectedItem() != null) {
+		else if (Meses.getSelectionModel().getSelectedItem() != null && Anos.getSelectionModel().getSelectedItem() != null) {
 			query = "SELECT nomeProduto, quantidade, dataAlteracao FROM historico WHERE mes = '" + Meses.getSelectionModel().getSelectedItem().toUpperCase()
 					+ "' AND ano = " + Anos.getSelectionModel().getSelectedItem();
+			try {
+				resultSet = historicoRepo.selectQuery(query);
+
+				colDiaHistorico.setCellValueFactory(new PropertyValueFactory<>("dataAlteracao"));
+				colProdutoHistorico.setCellValueFactory(new PropertyValueFactory<>("product"));
+				colquantidadeProdutoHistorico.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+
+				listaHistorico.clear();
+				while (resultSet.next()) {
+					String data = resultSet.getString("dataAlteracao");
+					String nomeProduto = resultSet.getString("nomeProduto");
+					Integer quantidade = resultSet.getInt("quantidade");
+					String quantidadeFormat = quantidade.toString();
+
+					boolean produtoEncontrado = false;
+
+					for (int i = 0; i < listaHistorico.size(); i++) {
+						if (listaHistorico.get(i).getProduct().equals(nomeProduto)) {
+							
+							String quantidadeCarregada = listaHistorico.get(i).getQuantity();
+							Integer formatter = Integer.parseInt(quantidadeCarregada);
+							Integer quantidadeTotal = formatter + quantidade;
+							String quantidadeAtualizada = quantidadeTotal.toString();
+
+							productDiario = new ProdutoDiario(nomeProduto, quantidadeAtualizada, data);
+							listaHistorico.set(i, productDiario);
+							produtoEncontrado = true;
+							break;
+						}
+					}
+
+					if (!produtoEncontrado) {
+						productDiario = new ProdutoDiario(nomeProduto, quantidadeFormat, data);
+						listaHistorico.add(productDiario);
+					}
+				}
+				TabelaHistorico.setItems(listaHistorico);
+			} catch (SQLException e) {
+				Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
+			}
+		}
+		else if (Anos.getSelectionModel().getSelectedItem() != null){
+			query = "SELECT nomeProduto, quantidade, dataAlteracao FROM historico WHERE ano = " + Anos.getSelectionModel().getSelectedItem();
 			try {
 				resultSet = historicoRepo.selectQuery(query);
 
@@ -602,6 +655,55 @@ public class FinalizacaoController implements Initializable {
 					"CERTIFIQUE-SE DE PREENCHER TODOS OS CAMPOS ANTES DE EXECUTAR A BUSCA", AlertType.INFORMATION);
 		}
 	}
+	
+	@FXML
+	public  void criarPDF() {
+		if(!listaHistorico.isEmpty()) {
+			final String DESTINO = "../pdf.pdf"; 
+			try {
+				PdfDocument pdf = new PdfDocument(new PdfWriter(DESTINO));
+		        Document doc = new Document(pdf);
+
+		        Paragraph titulo = new Paragraph("Relatório de Histórico")
+		                .setFontSize(18)
+		                .setBold()
+		                .setTextAlignment(com.itextpdf.layout.property.TextAlignment.CENTER);
+
+		        doc.add(titulo);
+		        doc.add(new Paragraph(""));
+
+		        Table tabela = new Table(3).useAllAvailableWidth().setHorizontalAlignment(com.itextpdf.layout.property.HorizontalAlignment.CENTER);
+		        
+		        tabela.addCell(new Cell().add(new Paragraph("Data de Alteração")));
+		        tabela.addCell(new Cell().add(new Paragraph("Nome do Produto")));
+		        tabela.addCell(new Cell().add(new Paragraph("Quantidade")));
+
+		        for (ProdutoDiario produto : listaHistorico) {
+		            tabela.addCell(new Cell().add(new Paragraph(produto.getDataAlteracao())));
+		            tabela.addCell(new Cell().add(new Paragraph(produto.getProduct())));
+		            tabela.addCell(new Cell().add(new Paragraph(produto.getQuantity())));
+		        }
+
+		        doc.add(tabela);
+
+		        doc.close();
+			} catch (FileNotFoundException e) {
+				
+				e.printStackTrace();
+			}
+		}
+		
+		else {
+			Alerts.showAlert("CAMPO VAZIO", null,
+					"CERTIFIQUE-SE DE EFETUAR UMA BUSCA PARA PODER GERAR O PDF DOS RESULTADOS", AlertType.INFORMATION);
+		}
+	}
+	
+	
+	
+	/*
+	 * EVENTO DE FECHAMENTO DO APP
+	 */
 	
 	public void salvamentoAutomatico(){
 		Timer timer = new Timer();
