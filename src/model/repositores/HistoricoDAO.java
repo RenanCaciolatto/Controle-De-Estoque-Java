@@ -77,7 +77,7 @@ public class HistoricoDAO implements DAOFactory{
 
 		    preparedStatement.executeUpdate();
 		} catch (SQLException e) {
-		    Alerts.showAlert("ERROR", null, "ERRO DESCONHECIDO: "+ e.getMessage(), AlertType.ERROR);
+			Alerts.showAlert("Erro!!", null, "ERRO NO BANCO DE DADOS: " + e.getMessage(), AlertType.ERROR);
 		}
 	}
 	
@@ -97,7 +97,7 @@ public class HistoricoDAO implements DAOFactory{
 
 			    preparedStatement.executeUpdate();
 			} catch (SQLException e) {
-			    Alerts.showAlert("ERROR", null, "ERRO DESCONHECIDO: "+ e.getMessage(), AlertType.ERROR);
+				Alerts.showAlert("Erro!!", null, "ERRO NO BANCO DE DADOS: " + e.getMessage(), AlertType.ERROR);
 			}
 		}
 	}

@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import connection.DBConnection;
+import gui.util.Alerts;
+import javafx.scene.control.Alert.AlertType;
 
 public interface DAOFactory {	
 	
@@ -17,7 +19,7 @@ public interface DAOFactory {
 		try {			
 			resultSet = preparedStatement.executeQuery();			
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+			Alerts.showAlert("Erro!!", null, "ERRO NO BANCO DE DADOS: " + e.getMessage(), AlertType.ERROR);
 		}
 		return resultSet;		
 	}
@@ -28,7 +30,7 @@ public interface DAOFactory {
 		try {			
 			preparedStatement.executeUpdate();
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+			Alerts.showAlert("Erro!!", null, "ERRO NO BANCO DE DADOS: " + e.getMessage(), AlertType.ERROR);
 		}
 	}
 }

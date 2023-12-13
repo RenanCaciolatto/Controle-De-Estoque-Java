@@ -37,21 +37,24 @@
                               <Font name="System Bold" size="18.0" />
                            </font>
                         </Label>
-                        <ScrollPane hbarPolicy="NEVER" layoutX="39.0" layoutY="106.0" prefHeight="399.0" prefWidth="719.0" style="-fx-border-color: black;">
-                           <content>
-                              <TableView fx:id="tabelaDiario" prefHeight="397.0" prefWidth="718.0">
-                                <columns>
-                                  <TableColumn fx:id="colNomeProdutoDiario" prefWidth="549.0" style="-fx-border-color: black; -fx-font-size: 13;" text="NOME DO PRODUTO" />
-                                  <TableColumn fx:id="colQuantidadeDiario" prefWidth="152.0" style="-fx-border-color: black; -fx-font-size: 13;" text="QUANTIDADE" />
-                                </columns>
-                              </TableView>
-                           </content>
-                        </ScrollPane>
                         <TextField fx:id="quantidadeProdutoDiario" layoutX="222.0" layoutY="62.0" onAction="#eventoInserirDiario" prefHeight="30.0" prefWidth="87.0" style="-fx-border-color: black; -fx-border-radius: 3;">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </TextField>
+                        <ScrollPane hbarPolicy="NEVER" layoutX="39.0" layoutY="106.0" prefHeight="399.0" prefWidth="719.0" style="-fx-border-color: black;">
+                           <content>
+                              <TableView fx:id="tabelaDiario" prefHeight="397.0" prefWidth="718.0" tableMenuButtonVisible="true">
+                                <columns>
+                                  <TableColumn fx:id="colNomeProdutoDiario" prefWidth="549.0" resizable="false" style="-fx-border-color: black; -fx-font-size: 13;" text="NOME DO PRODUTO" />
+                                  <TableColumn fx:id="colQuantidadeDiario" prefWidth="160.0" resizable="false" style="-fx-border-color: black; -fx-font-size: 13;" text="QUANTIDADE" />
+                                </columns>
+                                 <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                 </columnResizePolicy>
+                              </TableView>
+                           </content>
+                        </ScrollPane>
                         <Button fx:id="botaoSalvar" layoutX="675.0" layoutY="516.0" mnemonicParsing="false" onAction="#botaoDiarioPressionado" prefHeight="33.0" prefWidth="83.0" style="-fx-border-color: black; -fx-text-fill: white; -fx-background-color: #0a66b5; -fx-border-radius: 3; -fx-font-size: 15; -fx-font-weight: bold;" text="SALVAR" textFill="#9a9595">
                            <cursor>
                               <Cursor fx:constant="HAND" />
@@ -83,11 +86,11 @@
                            <content>
                               <TableView fx:id="tabelaProduto" editable="true" onMouseClicked="#definirObservacoes" prefHeight="369.0" prefWidth="730.0">
                                  <columns>
-                                    <TableColumn fx:id="colCodigo" editable="false" prefWidth="76.0" style="-fx-border-color: black; -fx-font-size: 13;" text="Código" />
-                                    <TableColumn fx:id="colNomeProduto" editable="false" prefWidth="385.0" style="-fx-border-color: black; -fx-font-size: 13;" text="Nome do Produto" />
-                                    <TableColumn fx:id="colEmEstoque" minWidth="0.0" onEditCommit="#manipuladorDeCommit" prefWidth="99.0" style="-fx-border-color: black; -fx-font-size: 13;" text="Em Estoque" />
-                                    <TableColumn fx:id="colEnchimentos" onEditCommit="#manipuladorDeCommit" prefWidth="95.0" style="-fx-border-color: black; -fx-font-size: 13;" text="Enchimentos" />
-                                    <TableColumn fx:id="colCortes" onEditCommit="#manipuladorDeCommit" prefWidth="57.0" style="-fx-border-color: black; -fx-font-size: 13;" text="Cortes" />
+                                    <TableColumn fx:id="colCodigo" editable="false" prefWidth="76.0" resizable="false" style="-fx-border-color: black; -fx-font-size: 13;" text="Código" />
+                                    <TableColumn fx:id="colNomeProduto" editable="false" prefWidth="385.0" resizable="false" style="-fx-border-color: black; -fx-font-size: 13;" text="Nome do Produto" />
+                                    <TableColumn fx:id="colEmEstoque" minWidth="0.0" onEditCommit="#manipuladorDeCommit" prefWidth="99.0" resizable="false" style="-fx-border-color: black; -fx-font-size: 13;" text="Em Estoque" />
+                                    <TableColumn fx:id="colEnchimentos" onEditCommit="#manipuladorDeCommit" prefWidth="95.0" resizable="false" style="-fx-border-color: black; -fx-font-size: 13;" text="Enchimentos" />
+                                    <TableColumn fx:id="colCortes" onEditCommit="#manipuladorDeCommit" prefWidth="57.0" resizable="false" style="-fx-border-color: black; -fx-font-size: 13;" text="Cortes" />
                                  </columns>
                               </TableView>
                            </content>
@@ -104,9 +107,9 @@
                            <content>
                               <TableView fx:id="TabelaHistorico" prefHeight="460.0" prefWidth="743.0">
                                 <columns>
-                                    <TableColumn fx:id="colDiaHistorico" minWidth="0.0" prefWidth="90.0" style="-fx-border-color: black; -fx-font-size: 13;" text="DIA" />
-                                  <TableColumn fx:id="colProdutoHistorico" prefWidth="525.0" style="-fx-border-color: black; -fx-font-size: 13;" text="NOME DO PRODUTO" />
-                                  <TableColumn fx:id="colquantidadeProdutoHistorico" minWidth="0.0" prefWidth="111.0" style="-fx-border-color: black; -fx-font-size: 13;" text="QUANTIDADE" />
+                                    <TableColumn fx:id="colDiaHistorico" editable="false" minWidth="0.0" prefWidth="90.0" resizable="false" style="-fx-border-color: black; -fx-font-size: 13;" text="DIA" />
+                                  <TableColumn fx:id="colProdutoHistorico" editable="false" prefWidth="525.0" resizable="false" style="-fx-border-color: black; -fx-font-size: 13;" text="NOME DO PRODUTO" />
+                                  <TableColumn fx:id="colquantidadeProdutoHistorico" editable="false" minWidth="0.0" prefWidth="111.0" resizable="false" style="-fx-border-color: black; -fx-font-size: 13;" text="QUANTIDADE" />
                                 </columns>
                               </TableView>
                            </content>

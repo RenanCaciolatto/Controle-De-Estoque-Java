@@ -22,6 +22,7 @@ import com.itextpdf.layout.element.Table;
 
 import gui.util.Alerts;
 import gui.util.Constraints;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -328,9 +329,9 @@ public class FinalizacaoController implements Initializable {
 	@FXML
 	private TableView<ProdutoDiario> tabelaDiario;
 	@FXML
-	private TableColumn<Produto, String> colNomeProdutoDiario;
+	private TableColumn<ProdutoDiario, String> colNomeProdutoDiario;
 	@FXML
-	private TableColumn<Produto, Integer> colQuantidadeDiario;
+	private TableColumn<ProdutoDiario, String> colQuantidadeDiario;
 	@FXML
 	private Button botaoSalvar;
 	@FXML
@@ -340,11 +341,11 @@ public class FinalizacaoController implements Initializable {
 	ObservableList<ProdutoDiario> ListaDiario = FXCollections.observableArrayList();
 	List<DiarioManipulador> listaAlteracoesDiario = new ArrayList<>();
 	
+	
 	private void definirTabelaDiario() {
 		colNomeProdutoDiario.setCellValueFactory(new PropertyValueFactory<>("product"));
 		colQuantidadeDiario.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
-		ListaDiario.clear();
 		try {
 			if(ListaDiarioTotal.isEmpty()) {
 				LocalDate data = LocalDate.now();
@@ -359,35 +360,33 @@ public class FinalizacaoController implements Initializable {
 		catch(SQLException e) {			
 			Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
 		}
-		ListaDiario.addAll(ListaDiarioTotal);
 		
 		atualizarTabelaDiario();
 	}
 
 	private void atualizarTabelaDiario() {
-		for (int i = 0; i < ListaDiario.size(); i++) {
-			tabelaDiario.setItems(ListaDiarioTotal);
-		}
-	}
+		colNomeProdutoDiario.setCellValueFactory(new PropertyValueFactory<>("product"));
+		colQuantidadeDiario.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
-	private void alertaCampoVazio() {
-		Alerts.showAlert("CAMPO VAZIO", null, "CERTIFIQUE DE PREENCHER TsODOS OS CAMPOS!", AlertType.INFORMATION);
-	}
+		ListaDiario.clear();
+		ListaDiario.addAll(ListaDiarioTotal);
+
+		tabelaDiario.setItems(ListaDiario);
+		}
 
 	@FXML
 	private void eventoInserirDiario() {
 		if (produtoDiario.getText().isEmpty() || quantidadeProdutoDiario.getText().isEmpty()) {
-			alertaCampoVazio();
+			Alerts.showAlert("CAMPO VAZIO", null, "CERTIFIQUE DE PREENCHER TODOS OS CAMPOS!", AlertType.INFORMATION);			
 		} else {
 			Integer posicao = null;
 			boolean has = false;
-			for (int j = 0; j < ListaDiario.size(); j++) {
-				if (ListaDiario.get(j).getProduct().equals(produtoDiario.getText().toUpperCase())) {
+			for (int j = 0; j < ListaDiarioTotal.size(); j++) {
+				if (ListaDiarioTotal.get(j).getProduct().equals(produtoDiario.getText().toUpperCase())) {
 					has = true;
 					posicao = j;
 				}
 			}
-		
 			if (has == false) {
 				LocalDate data = LocalDate.now();
 				ListaDiarioTotal.add(
@@ -402,7 +401,7 @@ public class FinalizacaoController implements Initializable {
 				
 			} else {
 				ListaDiarioTotal.get(posicao).setQuantity(quantidadeProdutoDiario.getText());
-				
+
 				LocalDate data = LocalDate.now();
 				String query = "UPDATE historico SET quantidade = "+ ListaDiarioTotal.get(posicao).getQuantity() +" WHERE dataAlteracao = '"+dtf.format(data).toString()+
 						"' AND nomeProduto = '"+ListaDiarioTotal.get(posicao).getProduct()+"'";
@@ -674,7 +673,7 @@ public class FinalizacaoController implements Initializable {
 	@FXML
 	public  void criarPDF() {
 		if(!listaHistorico.isEmpty()) {
-			final String DESTINO = "C:\\Users\\Renan\\Downloads\\pdf.pdf"; 
+			final String DESTINO = "C:\\Users\\Renan\\Downloads\\relatorio "+ PdfDMA +".pdf"; 
 			try {
 				PdfDocument pdf = new PdfDocument(new PdfWriter(DESTINO));
 		        Document doc = new Document(pdf);
@@ -727,28 +726,30 @@ public class FinalizacaoController implements Initializable {
 	    TimerTask tarefa = new TimerTask() {
 	        @Override
 	        public void run() {
-	        	System.out.println("rodou");
-	        	if(!listaAlteracoes.isEmpty()) {
-	        		listaAlteracoes.forEach(que -> {
-						try {
-							ProductDAO productRepository = new ProductDAO();
-							productRepository.updateQuery(que);
-													
-						} catch (SQLException e) {
-							Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
-						} 
-					});	        		
-	        	}
-	        	if(!listaAlteracoesDiario.isEmpty()) {
-					for(DiarioManipulador d : listaAlteracoesDiario) {
-						try {
-							historicoRepo.insertQueryProdutoDiario(d);
-						} catch (SQLException e) {
-							Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
+	        	Platform.runLater(() -> {
+		        	if(!listaAlteracoes.isEmpty()) {
+		        		listaAlteracoes.forEach(que -> {
+							try {
+								ProductDAO productRepository = new ProductDAO();
+								productRepository.updateQuery(que);
+														
+							} catch (SQLException e) {
+								Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
+							} 
+						});	
+		        		listaAlteracoes.clear();
+		        	}
+		        	if(!listaAlteracoesDiario.isEmpty()) {
+						for(DiarioManipulador d : listaAlteracoesDiario) {
+							try {
+								historicoRepo.insertQueryProdutoDiario(d);
+							} catch (SQLException e) {
+								Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
+							}
 						}
-					}
-	        	}
-	        	
+						listaAlteracoesDiario.clear();
+		        	}
+	        	});
 	        }
 	    };
 	    
