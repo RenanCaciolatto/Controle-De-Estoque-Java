@@ -23,6 +23,7 @@ import com.itextpdf.layout.element.Table;
 import gui.util.Alerts;
 import gui.util.Constraints;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -31,6 +32,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
@@ -72,8 +74,10 @@ public class FinalizacaoController implements Initializable {
 	PreparedStatement preparedStatement = null;
 	ResultSet resultSet = null;
 	Produto produto = null;
+	double tamanhoMedioCadaCelula = 25.0;
 
 	ObservableList<Produto> ListaProdutos = FXCollections.observableArrayList();
+	ObservableList<String> ListaProdutosString = FXCollections.observableArrayList();
 	ObservableList<String> ListaColecao = FXCollections.observableArrayList();
 
 	List<String> listaAlteracoes = new ArrayList<>();
@@ -90,10 +94,18 @@ public class FinalizacaoController implements Initializable {
 
 				if (!product.isEmpty() && !quantity.isEmpty()) {
 					produtoDiario.setText(product);
+					resultadoListView.setVisible(false);
 					quantidadeProdutoDiario.setText(quantity);
 				}
 			}
 		});
+
+		resultadoListView.setItems(FXCollections.observableArrayList());
+	    resultadoListView.setVisible(false);
+
+	    resultadoListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> selecionarItem(newValue));
+
+	    produtoDiario.textProperty().addListener((observable, oldValue, newValue) -> realizarBusca(newValue));
 
 		// TELA ESTOQUE
 		carregarDados();
@@ -107,6 +119,7 @@ public class FinalizacaoController implements Initializable {
 		
 		// SALVAR AUTOMATICO
 		salvamentoAutomatico();
+		
 	}
 	
 	// CARREGA A TABELA COM AS INFORMAÇÕES DO BANCO E DEFINE AS ULTIMAS 3 COLUNAS
@@ -135,6 +148,10 @@ public class FinalizacaoController implements Initializable {
 				tabelaProduto.setItems(ListaProdutos);
 			}
 			
+			//Carregar a lista de produtos apenas com os nomes
+			for(Produto produtos : ListaProdutos) {
+				ListaProdutosString.add(produtos.getNomeProduto());
+			}
 		} catch (NumberFormatException e) {
 			Alerts.showAlert("TIPO INCOMPATÍVEL", null, "ERRO: O CONTEÚDO DA TABELA DEVE SER UM NÚMERO INTEIRO!!\nTIPO DE ERRO: "+e.getMessage(), AlertType.ERROR);
 		}
@@ -194,7 +211,7 @@ public class FinalizacaoController implements Initializable {
 			colEmEstoque.setCellValueFactory(new PropertyValueFactory<>("estoque"));
 			colEnchimentos.setCellValueFactory(new PropertyValueFactory<>("enchimentos"));
 			colCortes.setCellValueFactory(new PropertyValueFactory<>("cortes"));
-
+			salvamentoAutomatico();
 			tabelaProduto.setItems(ListaProdutos);
 		} catch (SQLException e) {
 			Alerts.showAlert("ERRO!!", null, "ERRO NO BANCO DE DADOS, TENTE NOVAMENTE!\nERRO: " + e.getMessage(), AlertType.ERROR);
@@ -321,9 +338,12 @@ public class FinalizacaoController implements Initializable {
 	Historico historico = new Historico();
 	HistoricoDAO historicoRepo = new HistoricoDAO();
 
+	
 	private static DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	@FXML
 	private TextField produtoDiario;
+	@FXML
+    private ListView<String> resultadoListView;
 	@FXML
 	private TextField quantidadeProdutoDiario;
 	@FXML
@@ -333,9 +353,13 @@ public class FinalizacaoController implements Initializable {
 	@FXML
 	private TableColumn<ProdutoDiario, String> colQuantidadeDiario;
 	@FXML
+	private Button botaoInserirDiario;
+	@FXML
 	private Button botaoSalvar;
 	@FXML
 	private Button botaoDescartar;
+	@FXML
+	private Button botaoLimpar;
 
 	ObservableList<ProdutoDiario> ListaDiarioTotal = FXCollections.observableArrayList();
 	ObservableList<ProdutoDiario> ListaDiario = FXCollections.observableArrayList();
@@ -363,7 +387,53 @@ public class FinalizacaoController implements Initializable {
 		
 		atualizarTabelaDiario();
 	}
+	
+	@FXML
+	private void iniciarBusca() {
+		limparTudo();
+		
+	    resultadoListView.setItems(FXCollections.observableArrayList());
+	    resultadoListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> selecionarItem(newValue));
+	    
+	    // Atualizar a ListView quando o texto na TextField muda
+	    produtoDiario.textProperty().addListener((observable, oldValue, newValue) -> realizarBusca(newValue));
+	}
 
+	private void realizarBusca(String filtro) {
+	    ObservableList<String> resultadosFiltrados = ListaProdutosString.filtered(
+	            produto -> produto.toLowerCase().contains(filtro.toLowerCase()));
+
+	    // Atualizar a ListView com os resultados filtrados
+	    resultadoListView.setItems(resultadosFiltrados);
+	    resultadoListView.prefHeightProperty().bind(
+	            Bindings.min(
+	                    Bindings.size(resultadoListView.getItems()).multiply(tamanhoMedioCadaCelula),
+	                    100.0
+	            )
+	    );
+	    // Exibir ou ocultar a ListView conforme necessário
+	    resultadoListView.setVisible(!resultadosFiltrados.isEmpty());
+	}
+
+	private void selecionarItem(String itemSelecionado) {
+	    // Verificar se o item selecionado não é nulo antes de definir o texto na TextField
+	    if (itemSelecionado != null) {
+	        // Atualizar a TextField com o item selecionado
+	        produtoDiario.setText(itemSelecionado);
+
+	        // Ocultar a ListView
+	        resultadoListView.setVisible(false);
+	    }
+	}
+
+	@FXML
+	private void limparTudo() {
+	    produtoDiario.setText("");
+	    quantidadeProdutoDiario.setText("");
+	    resultadoListView.setItems(FXCollections.observableArrayList());
+	    resultadoListView.setVisible(false);// Se quantidadeProdutoDiario é um campo de texto, também limpe-o
+	}
+	
 	private void atualizarTabelaDiario() {
 		colNomeProdutoDiario.setCellValueFactory(new PropertyValueFactory<>("product"));
 		colQuantidadeDiario.setCellValueFactory(new PropertyValueFactory<>("quantity"));
@@ -378,7 +448,7 @@ public class FinalizacaoController implements Initializable {
 	private void eventoInserirDiario() {
 		if (produtoDiario.getText().isEmpty() || quantidadeProdutoDiario.getText().isEmpty()) {
 			Alerts.showAlert("CAMPO VAZIO", null, "CERTIFIQUE DE PREENCHER TODOS OS CAMPOS!", AlertType.INFORMATION);			
-		} else {
+		} else {			
 			Integer posicao = null;
 			boolean has = false;
 			for (int j = 0; j < ListaDiarioTotal.size(); j++) {
@@ -410,6 +480,7 @@ public class FinalizacaoController implements Initializable {
 			}
 			
 		}
+		limparTudo();
 		atualizarTabelaDiario();
 	}
 
@@ -433,20 +504,30 @@ public class FinalizacaoController implements Initializable {
 			quantidadeProdutoDiario.setText(tabelaDiario.getSelectionModel().getSelectedItem().getQuantity());
 
 			if (!produtoDiario.getText().isEmpty() && !quantidadeProdutoDiario.getText().isEmpty()) {
+				boolean achou = false;
 				for (int i = ListaDiarioTotal.size() - 1; i >= 0; i--) {
-					if (ListaDiarioTotal.get(i).getProduct().equals(produtoDiario.getText())) {
-						
+					if(ListaDiarioTotal.get(i).getProduct().equals(produtoDiario.getText())) {
 						String nomeProduto = ListaDiarioTotal.get(i).getProduct();
 						String dataAlteracao =ListaDiarioTotal.get(i).getDataAlteracao();
-						query = "delete from historico Where nomeProduto = '"+ nomeProduto +"' AND dataAlteracao = '"+ dataAlteracao +"'";
 						
+						query = "delete from historico Where nomeProduto = '"+ nomeProduto +"' AND dataAlteracao = '"+ dataAlteracao +"'";
 						ListaDiarioTotal.remove(i);
 						listaAlteracoes.add(query);
+						achou = true;
 						break;
+					}				
+											
+					if(achou == false) {
+						String nomeProduto = tabelaDiario.getSelectionModel().getSelectedItem().getProduct();
+						LocalDate data = LocalDate.now();
+						String dataAlteracao = dtf.format(data).toString();
+						query = "delete from historico Where nomeProduto = '"+ nomeProduto +"' AND dataAlteracao = '"+ dataAlteracao +"'";
+						listaAlteracoes.add(query);
 					}
 				}
 			}
 			produtoDiario.setText("");
+			resultadoListView.setVisible(false);
 			quantidadeProdutoDiario.setText("");
 			atualizarTabelaDiario();
 		}
@@ -673,7 +754,7 @@ public class FinalizacaoController implements Initializable {
 	@FXML
 	public  void criarPDF() {
 		if(!listaHistorico.isEmpty()) {
-			final String DESTINO = "C:\\Users\\Renan\\Downloads\\relatorio "+ PdfDMA +".pdf"; 
+			final String DESTINO = "C:\\Users\\caios.CAIO\\Downloads\\relatorio "+ PdfDMA +".pdf"; 
 			try {
 				PdfDocument pdf = new PdfDocument(new PdfWriter(DESTINO));
 		        Document doc = new Document(pdf);
@@ -714,8 +795,6 @@ public class FinalizacaoController implements Initializable {
 					"CERTIFIQUE-SE DE EFETUAR UMA BUSCA PARA PODER GERAR O PDF DOS RESULTADOS", AlertType.INFORMATION);
 		}
 	}
-	
-	
 	
 	/*
 	 * EVENTO DE FECHAMENTO DO APP
