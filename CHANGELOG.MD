@@ -1,3 +1,9 @@
+## [2.1.1] - 2023-12-19
+
+### Adicionado
+
+- Implementado página de login
+
 ## [2.1.0] - 2023-12-14
 
 ### Adicionado

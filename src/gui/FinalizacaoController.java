@@ -1,5 +1,6 @@
 package gui;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -40,6 +41,9 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 import model.entities.DiarioManipulador;
 import model.entities.Historico;
@@ -49,6 +53,18 @@ import model.repositores.HistoricoDAO;
 import model.repositores.ProductDAO;
 
 public class FinalizacaoController implements Initializable {
+	
+	private String usuario;
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+        // Faça o que for necessário com o valor do usuário
+    }
+    
+    public String getUsuario() {
+    	return usuario;
+    }
+	
 	@FXML
 	private ComboBox<String> comboboxProduto;
 	@FXML
@@ -201,9 +217,9 @@ public class FinalizacaoController implements Initializable {
 
 				while (resultSet.next()) {
 					ListaProdutos
-							.add(new Produto(resultSet.getString("codigoProduto"), resultSet.getString("nomeProduto"),
-									resultSet.getInt("estoque"), resultSet.getInt("enchimentos"),
-									resultSet.getInt("cortes"), resultSet.getString("observacoes")));
+					.add(new Produto(resultSet.getString("codigoProduto"), resultSet.getString("nomeProduto"),
+						resultSet.getInt("estoque"), resultSet.getInt("enchimentos"),
+						resultSet.getInt("cortes"), resultSet.getString("observacoes")));
 				}
 			}
 			colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
@@ -565,6 +581,13 @@ public class FinalizacaoController implements Initializable {
 	ObservableList<ProdutoDiario> listaHistorico = FXCollections.observableArrayList();
 	String PdfDMA = null;
 	
+	private Stage primaryStage;
+
+    // Método para configurar o palco principal (Stage)
+    public void setPrimaryStage(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+    }
+    
 	public void iniciarComboBoxDias() {
 		TodosDias.add(null);
 		for(int i = 1; i <= 31; i ++) {
@@ -754,41 +777,68 @@ public class FinalizacaoController implements Initializable {
 	@FXML
 	public  void criarPDF() {
 		if(!listaHistorico.isEmpty()) {
-			final String DESTINO = "C:\\Users\\caios.CAIO\\Downloads\\relatorio "+ PdfDMA +".pdf"; 
-			try {
-				PdfDocument pdf = new PdfDocument(new PdfWriter(DESTINO));
-		        Document doc = new Document(pdf);
+			FileChooser fileChooser = new FileChooser();
 
-		        Paragraph titulo = new Paragraph("Relatório " + PdfDMA)
-		                .setFontSize(18)
-		                .setBold()
-		                .setTextAlignment(com.itextpdf.layout.property.TextAlignment.CENTER);
+	        // Configuração do título
+	        fileChooser.setTitle("Salvar como PDF");
 
-		        doc.add(titulo);
-		        doc.add(new Paragraph(""));
+	        // Configuração do diretório inicial (Downloads)
+	        String userHome = System.getProperty("user.home");
+	        File initialDirectory = new File(userHome + File.separator + "Downloads");
+	        fileChooser.setInitialDirectory(initialDirectory);
 
-		        Table tabela = new Table(3).useAllAvailableWidth().setHorizontalAlignment(com.itextpdf.layout.property.HorizontalAlignment.CENTER);
-		        
-		        tabela.addCell(new Cell().add(new Paragraph("Data de Alteração").setBold()));
-		        tabela.addCell(new Cell().add(new Paragraph("Nome do Produto").setBold()));
-		        tabela.addCell(new Cell().add(new Paragraph("Quantidade").setBold()));
+	        // Configuração da extensão padrão e filtro
+	        FileChooser.ExtensionFilter extFilter = new ExtensionFilter("Documentos PDF (*.pdf)", "*.pdf");
+	        fileChooser.getExtensionFilters().add(extFilter);
 
-		        for (ProdutoDiario produto : listaHistorico) {
-		            tabela.addCell(new Cell().add(new Paragraph(produto.getDataAlteracao())));
-		            tabela.addCell(new Cell().add(new Paragraph(produto.getProduct())));
-		            tabela.addCell(new Cell().add(new Paragraph(produto.getQuantity())));
-		        }
+	        // Configuração do filtro de extensão padrão
+	        fileChooser.setSelectedExtensionFilter(extFilter);
 
-		        doc.add(tabela);
+	        // Configuração do nome padrão do arquivo
+	        String defaultFileName = "Relatório "+PdfDMA;
+	        fileChooser.setInitialFileName(defaultFileName);
 
-		        doc.close();
-		        
-		        Alerts.showAlert("CONFIRMAÇÃO", null, "PDF GERADO COM SUCESSO, SEU ARQUIVO PDF SE ENCONTRA NA PASTA: "+DESTINO, AlertType.CONFIRMATION);
-			} catch (FileNotFoundException e) {
+	        // Mostra o diálogo para salvar o arquivo
+	        File destino = fileChooser.showSaveDialog(primaryStage);
+
+	        if (destino != null) {
+		             
+				try {
+					PdfDocument pdf = new PdfDocument(new PdfWriter(destino));
+			        Document doc = new Document(pdf);
+	
+			        Paragraph titulo = new Paragraph("Relatório " + PdfDMA)
+			                .setFontSize(18)
+			                .setBold()
+			                .setTextAlignment(com.itextpdf.layout.property.TextAlignment.CENTER);
+	
+			        doc.add(titulo);
+			        doc.add(new Paragraph(""));
+	
+			        Table tabela = new Table(3).useAllAvailableWidth().setHorizontalAlignment(com.itextpdf.layout.property.HorizontalAlignment.CENTER);
+			        
+			        tabela.addCell(new Cell().add(new Paragraph("Data de Alteração").setBold()));
+			        tabela.addCell(new Cell().add(new Paragraph("Nome do Produto").setBold()));
+			        tabela.addCell(new Cell().add(new Paragraph("Quantidade").setBold()));
+	
+			        for (ProdutoDiario produto : listaHistorico) {
+			            tabela.addCell(new Cell().add(new Paragraph(produto.getDataAlteracao())));
+			            tabela.addCell(new Cell().add(new Paragraph(produto.getProduct())));
+			            tabela.addCell(new Cell().add(new Paragraph(produto.getQuantity())));
+			        }
+	
+			        doc.add(tabela);
+	
+			        doc.close();
+			        
+			        Alerts.showAlert("CONFIRMAÇÃO", null, "PDF GERADO COM SUCESSO, SEU ARQUIVO PDF SE ENCONTRA NA PASTA: "+destino, AlertType.CONFIRMATION);
 				
-				e.printStackTrace();
+					} catch (FileNotFoundException e) {
+						
+						e.printStackTrace();
+					}
+		        }
 			}
-		}
 		
 		else {
 			Alerts.showAlert("CAMPO VAZIO", null,
