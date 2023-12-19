@@ -1,3 +1,13 @@
+## [2.2] - 2023-12-19
+
+### Adicionado
+
+- Implementado o cadastro de novos usuários
+
+### Corrigido
+
+- Erros de estilização
+
 ## [2.1.1] - 2023-12-19
 
 ### Adicionado

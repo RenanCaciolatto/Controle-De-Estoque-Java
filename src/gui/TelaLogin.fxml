@@ -2,11 +2,12 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="289.0" prefWidth="431.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.TelaLoginController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="305.0" prefWidth="431.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.TelaLoginController">
    <children>
       <TextField fx:id="usuario" layoutX="92.0" layoutY="86.0" prefHeight="35.0" prefWidth="248.0" promptText="Usuario" style="-fx-border-color: black; -fx-border-radius: 3;">
          <font>
@@ -18,16 +19,16 @@
             <Font size="24.0" />
          </font>
       </Label>
-      <TextField fx:id="senha" layoutX="92.0" layoutY="145.0" prefHeight="35.0" prefWidth="248.0" promptText="Senha" style="-fx-border-color: black; -fx-border-radius: 3;">
+      <PasswordField fx:id="senha" layoutX="92.0" layoutY="145.0" prefHeight="35.0" prefWidth="248.0" promptText="Senha" style="-fx-border-color: black; -fx-border-radius: 3;">
          <font>
             <Font size="18.0" />
          </font>
-      </TextField>
-      <Button fx:id="botaoEnviar" layoutX="164.0" layoutY="209.0" mnemonicParsing="false" onAction="#testarLogin" prefHeight="16.0" prefWidth="104.0" style="-fx-border-color: black; -fx-text-fill: white; -fx-background-color: #0a66b5; -fx-border-radius: 3; -fx-font-weight: bold; -fx-font-size: 18;" text="Entrar">
+      </PasswordField>
+      <Button fx:id="botaoEnviar" layoutX="164.0" layoutY="209.0" mnemonicParsing="false" onAction="#testarLogin" prefHeight="16.0" prefWidth="104.0" style="-fx-border-color: black; -fx-text-fill: white; -fx-background-color: #0a66b5; -fx-border-radius: 3;" text="Entrar">
          <font>
-            <Font size="18.0" />
+            <Font name="System Bold" size="18.0" />
          </font>
       </Button>
-      <Button layoutX="148.0" layoutY="263.0" mnemonicParsing="false" text="CADASTRAR USUARIO" />
+      <Button fx:id="botaoCadastrar" layoutX="143.0" layoutY="264.0" mnemonicParsing="false" onAction="#cadastrarUsuario" style="-fx-background-color: #0a66b5; -fx-border-color: black; -fx-text-fill: white; -fx-font-weight: bold; -fx-border-radius: 3;" text="CADASTRAR USUARIO" />
    </children>
 </AnchorPane>

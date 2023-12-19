@@ -2,10 +2,11 @@ package application;
 
 import java.util.Optional;
 
+import gui.CadastroUsuarioController;
+import gui.ConfirmarAdministradorController;
 import gui.FinalizacaoController;
 import gui.TelaLoginController;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -13,6 +14,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import model.entities.Usuarios;
 
 public class Main extends Application {
 
@@ -27,19 +29,23 @@ public class Main extends Application {
     }
 
     // Método para abrir a tela de login
-    private void abrirTelaLogin() {
+    public void abrirTelaLogin() {
         try {
+        	primaryStage.close();
+        	
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/TelaLogin.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
 
-            // Configurar o controlador, se necessário
+            // Configurar o controlador
             TelaLoginController telaLoginController = loader.getController();
             telaLoginController.setMainApp(this); // Passe a referência da classe principal, se necessário
 
             primaryStage.setScene(scene);
             primaryStage.setTitle("Tela de Login");
             primaryStage.show();
+            Image image = new Image("/Icones/fofuchosLogotipo.png");
+            primaryStage.getIcons().add(image);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -62,9 +68,11 @@ public class Main extends Application {
             novaStage.setTitle("FOFUCHOS PET");
             novaStage.show();
 	        Image image = new Image("/Icones/fofuchosLogotipo.png");
-	        primaryStage.getIcons().add(image);
+	        novaStage.getIcons().add(image);
 
-	        primaryStage.setOnCloseRequest(evento -> {
+	        FinalizacaoController fc = loader.getController();
+	        fc.setUsuario(username);
+	        novaStage.setOnCloseRequest(evento -> {
 	            evento.consume();
 	            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 	            alert.setTitle("Confirmação");
@@ -72,22 +80,60 @@ public class Main extends Application {
 	            alert.setContentText("Você tem certeza que deseja sair?\nClique em OK para sair.");
 
 	            Optional<ButtonType> result = alert.showAndWait();
-	            if (result.isPresent() && result.get() == ButtonType.OK) {
-	                FinalizacaoController fc = loader.getController();
-
-	                // Passe o valor do usuário para o controlador da próxima página
-	                fc.setUsuario(username);
+	            if (result.isPresent() && result.get() == ButtonType.OK) {	                
 	                fc.salvamentoAutomatico();
 
-	                primaryStage.close();
-	                Platform.exit();
+	                novaStage.close();
+	                abrirTelaLogin();
 	            }
 	        });
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    
+    public void abrirTelaCadastro() {
+    	try {
+    		// Feche o Stage atual
+            primaryStage.close();
+            
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/CadastroUsuario.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
 
+            // Configurar o controlador
+            CadastroUsuarioController cadastroUsuarioController = loader.getController();
+            cadastroUsuarioController.setMainApp(this); // Passe a referência da classe principal, se necessário
+
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("Tela de Cadastro");
+            primaryStage.show();
+            Image image = new Image("/Icones/fofuchosLogotipo.png");
+            primaryStage.getIcons().add(image);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void abrirTelaConfirmarAdministrador(Usuarios user) {
+    	try {
+	    	FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/ConfirmarAdministrador.fxml"));
+	        Parent root = loader.load();
+	        Scene scene = new Scene(root);
+	        
+	        ConfirmarAdministradorController cac = loader.getController();
+	        cac.setMainApp(this); // Passe a referência da classe principal, se necessário
+	        
+	        cac.setUsuario(user);
+	        primaryStage.setScene(scene);
+	        primaryStage.setTitle("Tela de Cadastro");
+	        primaryStage.show();
+	        Image image = new Image("/Icones/fofuchosLogotipo.png");
+	        primaryStage.getIcons().add(image);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+    }
     public static void main(String[] args) {
         launch(args);
     }

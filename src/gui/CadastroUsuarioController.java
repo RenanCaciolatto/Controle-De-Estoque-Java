@@ -17,10 +17,19 @@ import javafx.scene.control.TextField;
 import model.entities.Usuarios;
 import model.repositores.UsuarioDAO;
 
-public class TelaLoginController implements Initializable {
+public class CadastroUsuarioController implements Initializable{
 
 	@FXML
-	private Button botaoCadastrar;
+	private Button cadastrar;
+	@FXML
+	private Button voltar;
+	@FXML
+	private TextField usuario;
+	@FXML
+	private TextField senha;
+	List<Usuarios> listaUsuarios = new ArrayList<>();
+	List<String> nomesUsuarios = new ArrayList<>();
+	UsuarioDAO usuarioDAO = new UsuarioDAO();
 	
 	private Main mainApp; // Campo para armazenar a referência da classe principal
 
@@ -29,20 +38,14 @@ public class TelaLoginController implements Initializable {
         this.mainApp = mainApp;
     }
 	
-	List<Usuarios> listaUsuarios = new ArrayList<>();
-	UsuarioDAO usuarioDAO = new UsuarioDAO();
-	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		carregarLista();
+		for(Usuarios u : listaUsuarios) {
+			String nomes = u.getLogin();			
+			nomesUsuarios.add(nomes);
+		}
 	}
-	
-	@FXML
-	private TextField usuario;
-	@FXML
-	private TextField senha;
-	@FXML
-	private Button botaoEnviar;
 	
 	// Carrega a lista de usuarios
 	private void carregarLista() {
@@ -51,41 +54,30 @@ public class TelaLoginController implements Initializable {
 			ResultSet rs = usuarioDAO.selectQuery(query);
 			while(rs.next()) {
 				listaUsuarios.add(new Usuarios(rs.getString("login"), rs.getString("senha"))); 
-			}			
+			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	@FXML
-	public void testarLogin() {
+	private void cadastrarUsuario() throws SQLException {
+		
 		if(usuario.getText().isEmpty() || senha.getText().isEmpty()) {
 			Alerts.showAlert("CAMPO VAZIO", null, "CERTIFIQUE DE PREENCHER TODOS OS CAMPOS!", AlertType.INFORMATION);
 		}
-		else if(!verificarLogin()) {
-			Alerts.showAlert("ERRO", null, "USUARIO OU SENHA INCORRETOS", AlertType.INFORMATION);
+		else if(nomesUsuarios.contains(usuario.getText())) {
+			Alerts.showAlert("USUÁRIO CADASTRADO", null, "O USUÁRIO JÁ ESTÁ CADASTRADO NO BANCO DE DADOS", AlertType.INFORMATION);
 		}
 		else {
-			logadoComSucesso(usuario.getText());
+			mainApp.abrirTelaConfirmarAdministrador(new Usuarios(usuario.getText(),senha.getText()));
+			
 		}
 	}
-	
-	//Verificar o login
-	public boolean verificarLogin() {
-		for (Usuarios user : listaUsuarios) {
-			if (user.getLogin().equals(usuario.getText()) && user.getSenha().equals(senha.getText())) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	private void logadoComSucesso(String username) {
-		mainApp.abrirProximaTela(username);
-	}
-	
+
 	@FXML
-	private void cadastrarUsuario() {
-		mainApp.abrirTelaCadastro();
+	private void telaDeLogin() {
+		mainApp.abrirTelaLogin();
 	}
 }
