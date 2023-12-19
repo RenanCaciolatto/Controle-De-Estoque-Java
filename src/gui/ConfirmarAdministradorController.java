@@ -53,7 +53,8 @@ public class ConfirmarAdministradorController implements Initializable{
 			if(usuarioAdministrador.getText().isEmpty() || senhaAdministrador.getText().isEmpty()) {
 				Alerts.showAlert("CAMPO VAZIO", null, "CERTIFIQUE DE PREENCHER TODOS OS CAMPOS!", AlertType.INFORMATION);
 			}
-			else if(usuarioAdministrador.getText().equals("admin") || senhaAdministrador.getText().equals(senhaADM)) {
+			else if(usuarioAdministrador.getText().equals("admin") && senhaAdministrador.getText().equals(senhaADM)) {
+				System.out.println(senhaADM);
 				usuarioDAO.insertQueryUsuario(this.usuario);
 				mainApp.abrirTelaLogin();
 				Alerts.showAlert("USUÁRIO CADASTRADO", null, "USUÁRIO CADASTRADO COM SUCESSO", AlertType.INFORMATION);

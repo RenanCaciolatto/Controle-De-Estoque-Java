@@ -1,3 +1,9 @@
+## [2.2.1] 2023-12-19
+
+### Corrigido
+
+- Erro ao cadastrar novos usuários
+
 ## [2.2] - 2023-12-19
 
 ### Adicionado
